@@ -483,7 +483,7 @@ House.prototype.render = function(direction) { // The direction specifies when w
 	}
 
 	// Now that the locations of all rooms have been set and adjusted, place items in each room
-	this._placeItems(this.graph);
+	// this._placeItems(this.graph);
 
 	// for (var z = 0; z < house.length; z++) {
 	// 	console.log(z);
@@ -596,52 +596,52 @@ House.prototype._spaceFill = function(grid) {
 	return grid;
 };
 
-House.prototype._placeItems = function(room) {
-	if(room.room !== 'foyer' && room.room !== 'hall' && room.room !== 'closet' && room.getPlaced() === true) {
-		var roomX = room.getX(),
-			roomY = room.getY(),
-			roomZ = room.getZ();
-		var itemsTemplate = TemplateRepository.create(room.room); // Assumes that the room name is also the name of the template
-		var spawnDir = room.getSpawnDirection();
-		var options = {};
-		switch(spawnDir) {
-			case 's':
-				options.rotate = '180deg';
-				break;
-			case 'e':
-				options.rotate = '270deg';
-				break;
-			case 'w':
-			options.rotate = '90deg';
-				break;
-			case 'n':
-			default:
-				break;
-		}
-		var itemMap = itemsTemplate.getProcessedTemplate(options);
-		for(var key in itemMap) {
-			var repo = itemMap[key].repository,
-				name = itemMap[key].name,
-				itemX = Number(key.split(",")[0]),
-				itemY = Number(key.split(",")[1]),
-				x = itemX + roomX + 1, // + 1 so that they are not placed on the walls
-				y = itemY + roomY + 1;
-
-			this.addItem(x, y, roomZ, Game[repo].create(name));
-
-			// Add living location
-			if(name === 'bed')
-				this.addLivingLocation(x + "," + y + "," + roomZ);
-		}
-	}
-
-	if(room.children.length > 0) {
-		for (var i = 0; i < room.children.length; i++) {
-			this._placeItems(room.children[i]);
-		}
-	}
-
-};
+// House.prototype._placeItems = function(room) {
+// 	if(room.room !== 'foyer' && room.room !== 'hall' && room.room !== 'closet' && room.getPlaced() === true) {
+// 		var roomX = room.getX(),
+// 			roomY = room.getY(),
+// 			roomZ = room.getZ();
+// 		var itemsTemplate = TemplateRepository.create(room.room); // Assumes that the room name is also the name of the template
+// 		var spawnDir = room.getSpawnDirection();
+// 		var options = {};
+// 		switch(spawnDir) {
+// 			case 's':
+// 				options.rotate = '180deg';
+// 				break;
+// 			case 'e':
+// 				options.rotate = '270deg';
+// 				break;
+// 			case 'w':
+// 			options.rotate = '90deg';
+// 				break;
+// 			case 'n':
+// 			default:
+// 				break;
+// 		}
+// 		var itemMap = itemsTemplate.getProcessedTemplate(options);
+// 		for(var key in itemMap) {
+// 			var repo = itemMap[key].repository,
+// 				name = itemMap[key].name,
+// 				itemX = Number(key.split(",")[0]),
+// 				itemY = Number(key.split(",")[1]),
+// 				x = itemX + roomX + 1, // + 1 so that they are not placed on the walls
+// 				y = itemY + roomY + 1;
+//
+// 			this.addItem(x, y, roomZ, Game[repo].create(name));
+//
+// 			// Add living location
+// 			if(name === 'bed')
+// 				this.addLivingLocation(x + "," + y + "," + roomZ);
+// 		}
+// 	}
+//
+// 	if(room.children.length > 0) {
+// 		for (var i = 0; i < room.children.length; i++) {
+// 			this._placeItems(room.children[i]);
+// 		}
+// 	}
+//
+// };
 
 // For testing
 House.prototype._testZeroIndex = function(grid, info) {

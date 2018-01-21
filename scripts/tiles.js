@@ -138,7 +138,7 @@ TileRepository.define('glass door', {
 TileRepository.define('guard rail', {
     name: 'guard rail',
     character: '#',
-    foreground: Palette.metalGrey,
+    foreground: 'grey',
     walkable: false,
     blocksLight: false,
     description: 'A metal guard rail'
