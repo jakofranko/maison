@@ -22,7 +22,7 @@ class Maison {
     	Object.assign(this, defaults, options);
 
         // Non-configurables
-        this.rooms: [
+        this.rooms = [
             'foyer',		// 0
             'dining room',	// 1
             'living room',	// 2
