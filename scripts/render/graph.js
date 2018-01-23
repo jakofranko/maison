@@ -1,5 +1,5 @@
-const w = window.innerWidth;
-const h = window.innerHeight;
+const w = document.body.offsetWidth;
+const h = document.documentElement.clientHeight;
 const p = 20;
 
 const svg = d3.select("svg")
