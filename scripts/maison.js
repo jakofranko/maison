@@ -105,7 +105,7 @@ class Maison {
     	var possibleChildren = [];
     	this.grammar[room].forEach(function(val, index) {
     		var roomName = this.rooms[val];
-    		if(!this.maxRooms[roomName] || this.roomNum[roomName] <= this.maxRooms[roomName])
+    		if(!this.maxRooms[roomName] || this.roomNum[roomName] < this.maxRooms[roomName])
     			possibleChildren.push(val);
     	}, this);
 
