@@ -1,10 +1,9 @@
-const w = document.body.offsetWidth;
-const h = document.documentElement.clientHeight;
+const svg = d3.select("svg");
+const w = svg.node().getBoundingClientRect().width;
+const h = svg.node().getBoundingClientRect().height;
 const p = 20;
 
-const svg = d3.select("svg")
-    .attr("width", w)
-    .attr("height", h);
+
 
 const vis = svg.append("g")
     .attr("transform", `translate(${p / 2},${p / 2})`);
