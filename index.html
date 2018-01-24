@@ -6,10 +6,24 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Maison</title>
     <style>
-        body {
+        html, body {
+            height: 100%;
             box-sizing: border-box;
             padding: 0;
             margin: 0;
+        }
+
+        .panes {
+            height: 100%;
+            display: flex;
+        }
+
+        .panes #graph, .panes #display {
+            flex-basis: 100%;
+        }
+
+        #display canvas {
+            max-width: 100%;
         }
 
         .line {
@@ -22,19 +36,32 @@
             text-shadow: 0 1px 0 #fff, 0 -1px 0 #fff, 1px 0 0 #fff, -1px 0 0 #fff;
         }
     </style>
+
+    <!-- Libs -->
     <script src="https://d3js.org/d3.v4.js"></script>
     <script src="scripts/libs/rot.min.js" type="text/javascript"></script>
     <script src="scripts/libs/utilities.js" type="text/javascript"></script>
+
+    <!-- 2D Rendering -->
     <script src="scripts/render/2d/repository.js" type="text/javascript"></script>
     <script src="scripts/render/2d/glyph.js" type="text/javascript"></script>
     <script src="scripts/render/2d/tile.js" type="text/javascript"></script>
     <script src="scripts/render/2d/tiles.js" type="text/javascript"></script>
     <script src="scripts/render/2d/house.js" type="text/javascript"></script>
+    <script src="scripts/render/2d/main.js" type="text/javascript"></script>
+
+    <!-- Maison -->
     <script src="scripts/maison.js" type="text/javascript"></script>
     <script src="scripts/chambre.js" type="text/javascript"></script>
 </head>
 <body>
-    <svg></svg>
+    <div class="panes">
+        <svg id="graph"></svg>
+        <div id="display"></div>
+    </div>
     <script src="scripts/render/graph.js" type="text/javascript"></script>
+    <script>
+        const render2D = new Render2D();
+    </script>
 </body>
 </html>
