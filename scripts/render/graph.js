@@ -42,6 +42,6 @@ vis.selectAll(".room-label")
     .attr("class", "room-label")
     .attr("x", d => d.x)
     .attr("y", d => d.y)
-    .attr("dy", p / 2)
+    .attr("dy", p / 4)
     .attr("dx", p / 2)
     .text(d => d.data.name);
