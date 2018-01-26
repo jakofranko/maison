@@ -62,7 +62,9 @@
     </div>
     <script src="scripts/render/graph.js" type="text/javascript"></script>
     <script>
-        const render2D = new Render2D();
+        const maison = new Maison();
+        const graph = new Graph(maison);
+        const render2D = new Render2D(maison);
     </script>
 </body>
 </html>
