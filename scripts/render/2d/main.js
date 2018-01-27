@@ -122,14 +122,14 @@ class Render2D {
     			for (var k = 0; k < room.children.length; k++) {
     				// These might have changed since the last iteration. Make sure they
     				// are up-to-date with the newest location of the current room
-    				x = room.getX();
-    				y = room.getY();
-    				z = room.getZ();
+    				x = room.x;
+    				y = room.y;
+    				z = room.z;
 
     				// Get the current child and a random spawn direction
     				var child = room.children[k];
     				var dir = possibleDirections.pop();
-    				child.setSpawnDirection(dir);
+    				child.spawnDirection = dir;
 
     				// Now that a child and the direction it will spawn have been chosen:
     				// 1) Check to see if adding this child will exceed the maxWidth or maxHeight properties
@@ -138,13 +138,13 @@ class Render2D {
     				// 4) Set the room and child x,y coordinates
     				// 5) Determine a place on the wall the rooms will share, and add a door
     				var exceedsMax = (
-    					child.getWidth() + house[z].length > this.maxWidth ||
-    					child.getHeight() + house[z][0].length > this.maxHeight
+    					child.width + house[z].length > this.maxWidth ||
+    					child.height + house[z][0].length > this.maxHeight
     				);
     				if(exceedsMax && z + 1 <= this.maxStories) {
     					// Set the child's x, y, and z levels...
-    					child.setX(x);
-    					child.setY(y);
+    					child.x = x;
+    					child.y = y;
     					child.setZ(z + 1);
 
     					// And push it into the queue.
@@ -155,10 +155,10 @@ class Render2D {
     						// Shift whole house 'south' by using Array.prototype.unshift()
     						case 'n':
     							// Set x,y
-    							child.setX(x);
-    							child.setY(y - child.getHeight() + 1); // plus one so the rooms will share a wall
+    							child.x = x;
+    							child.y = y - child.height + 1; // plus one so the rooms will share a wall
 
-    							if(child.getY() < 0) {
+    							if(child.y < 0) {
     								// Loop through every column
     								for(var houseX = 0; houseX < house[z].length; houseX++) {
     									// unshift() a patch of grass/air to every row based on room height
@@ -212,8 +212,8 @@ class Render2D {
     					}
 
     					// Determine where to place the door
-    					var roomXY = listXY(room.getX(), room.getY(), room.getWidth(), room.getHeight());
-    					var childXY = listXY(child.getX(), child.getY(), child.getWidth(), child.getHeight());
+    					var roomXY = this._listXY(room.x, room.y, room.width, room.height);
+    					var childXY = this._listXY(child.x, child.y, child.width, child.height);
     					var commonXY = [];
     					for (var l = 0; l < roomXY.length; l++)
     						if(childXY.indexOf(roomXY[l]) > -1)
@@ -313,7 +313,7 @@ class Render2D {
     	for (var x = 0; x < w; x++) {
     		// Initialize the y-length if it doesn't exist yet.
     		if(!tiles[x])
-    				tiles[x] = new Array(h);
+    			tiles[x] = new Array(h);
 
     		for (var y = 0; y < h; y++) {
     			if(y === 0 || y === h - 1)
@@ -330,20 +330,20 @@ class Render2D {
     		var doorX, doorY;
     		switch(direction) {
     			case 'n': // Rooms will be spawning south, so put the door at the north
-    				doorX = Math.getRandomInRange(room.getX() + 1, room.getWidth() - 2);
-    				doorY = room.getY();
+    				doorX = Math.getRandomInRange(room.x + 1, room.width - 2);
+    				doorY = room.y;
     				break;
     			case 'e': // Rooms will be spawning west, so put door at the east
-    				doorX = room.getWidth() - 1;
-    				doorY = Math.getRandomInRange(room.getY() + 1, room.getHeight() - 2);
+    				doorX = room.width - 1;
+    				doorY = Math.getRandomInRange(room.y + 1, room.height - 2);
     				break;
     			case 's':
-    				doorX = Math.getRandomInRange(room.getX() + 1, room.getWidth() - 2);
-    				doorY = room.getHeight() - 1;
+    				doorX = Math.getRandomInRange(room.x + 1, room.width - 2);
+    				doorY = room.height - 1;
     				break;
     			case 'w':
-    				doorX = room.getX();
-    				doorY = Math.getRandomInRange(room.getY() + 1, room.getHeight() - 2);
+    				doorX = room.x;
+    				doorY = Math.getRandomInRange(room.y + 1, room.height - 2);
     				break;
     			default:
     				break;
@@ -391,4 +391,26 @@ class Render2D {
         let fontSize = this.display.computeFontSize(parent.clientWidth, parent.clientHeight);
         this.display.setOptions({ fontSize });
     }
+
+
+
+    /**
+     * _listXY - Utility for creating a list of x,y coordinates given a starting
+     *           X, a starting Y, a width and a height.
+     *
+     * @param  {Number} startX Starting X coordinate
+     * @param  {Number} startY Starting Y coordinate
+     * @param  {Number} width  How wide on the grid to go
+     * @param  {Number} height How deep on the grid to go
+     * @returns {Array}        An array of strings with the format "x,y"
+     */
+    _listXY(startX, startY, width, height) {
+        var list = [];
+        for (let x = 0; x < width; x++, startX++) {
+            for(let y = 0, initialY = startY; y < height; y++, initialY++) {
+                list.push(startX + "," + initialY);
+            }
+        }
+        return list;
+    };
 }
