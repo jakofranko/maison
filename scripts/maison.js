@@ -121,7 +121,39 @@ class Maison {
     		return false;
     	else
     		return this.rooms[child];
-    };
+    }
+
+    /**
+     * adjustX - Recursively adjust the x value for specified room and it's children
+     *
+     * @param  {Number} amount The amount to adjust x
+     * @param  {Chambre} room   The Chambre instance
+     * @returns {undefined}
+     */
+    adjustX(amount, room) {
+    	let r = room || this.graph; // specific room or start with the foyer
+    	r.x += amount;
+    	if(r.children)
+    		for(let i = 0; i < r.children.length; i++)
+    			this.adjustX(amount, r.children[i]);
+
+    }
+
+    /**
+     * adjustY - Recursively adjust the y value for specified room and it's children
+     *
+     * @param  {Number} amount The amount to adjust y
+     * @param  {Chambre} room   The Chambre instance
+     * @returns {undefined}
+     */
+    adjustY(amount, room) {
+    	let r = room || this.graph; // specific room or start with the foyer
+    	r.y += amount;
+    	if(r.children)
+    		for(let i = 0; i < r.children.length; i++)
+    			this.adjustY(amount, r.children[i]);
+
+    }
 
     static getRoomSize(name) {
         const roomSizes = {
