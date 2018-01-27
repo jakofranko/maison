@@ -1,14 +1,13 @@
 class Graph {
     constructor(maison) {
         this.maison = maison;
-        this.graph = maison.generate("foyer");
         this.svg = d3.select("#graph");
         this.w = this.svg.node().getBoundingClientRect().width;
         this.h = this.svg.node().getBoundingClientRect().height;
         this.p = 20;
 
         // Set up data
-        this.root = d3.hierarchy(this.graph);
+        this.root = d3.hierarchy(this.maison.graph);
         this.tree = d3.tree().size([this.w - this.p, this.h - this.p]);
 
         // Set up visualization

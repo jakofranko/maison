@@ -2,7 +2,6 @@ class Render2D {
     constructor(maison, options = {}) {
         // Display width and height is in characters, so divide the width and height by the fontSize
         this.maison = maison;
-        this.graph = maison.generate("foyer");
         this.container = options['container'] || document.getElementById("display");
         this.display = new ROT.Display();
 
@@ -43,7 +42,7 @@ class Render2D {
     	var house = [];
 
     	// This will be an array of rooms to do next.
-    	var queue = [this.graph];
+    	var queue = [this.maison.graph];
 
     	// Process the queue until it's empty. Processing a room will consist of the following:
     	// 1. Draw the room starting at the designated x, y, and z

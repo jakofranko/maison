@@ -71,9 +71,11 @@ class Maison {
     	this.roomNum = [];
     	for (var i = 0; i < this.rooms.length; i++)
     		this.roomNum[this.rooms[i]] = 0;
+
+        this.graph = this._generateGraph();
     }
 
-    generate(name) {
+    _generateGraph(name = "foyer") {
     	// Create a new room
     	var room = new Chambre(name);
 
@@ -90,7 +92,7 @@ class Maison {
     			if(randomChild) {
     				// Increment the room number, and do it before we recurse
     				this.roomNum[randomChild]++;
-    				room.addChild(this.generate(randomChild));
+    				room.addChild(this._generateGraph(randomChild));
     			}
     		}
 
