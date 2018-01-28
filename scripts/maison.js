@@ -155,6 +155,32 @@ class Maison {
 
     }
 
+    // NOTE: THIS IS DESIGNED TO ONLY COVER X AN Y, SO PASS IN THE APPROPRIATE Z LEVEL WHEN CALLING THIS FUNCTION
+    // Given x, y, width, and height, attempt to return coordinates of floor tile for stairs.
+    // Otherwise, return true if room is found, false if no room is found.
+    // (meaning, that the given grid contains only empty space or grass)
+    roomCheck(startX, startY, width, height, tiles) {
+    	var roomFound = false;
+    	// z level doesn't exist yet, so obvs, no room
+    	if(!tiles)
+    		return roomFound;
+    	for (var x = 0, tilesX = startX; x < width; x++, tilesX++) {
+    		for (var y = 0, tilesY = startY; y < height; y++, tilesY++) {
+    			if(!tiles[tilesX])
+    				continue;
+
+    			if(tiles[tilesX][tilesY] && tiles[tilesX][tilesY].getName() != 'grass' && tiles[tilesX][tilesY].getName() != 'air') {
+					roomFound = true;
+					break;
+    			}
+    		}
+    		if(roomFound)
+    			break;
+    	}
+
+    	return roomFound;
+    }
+
     static getRoomSize(name) {
         const roomSizes = {
         	'foyer': [3, 4], // roomName: [min, max]

@@ -72,16 +72,16 @@ class Render2D {
     		// to skip the shared wall.
     		switch(room.spawnDirection) {
     			case 'n':
-    				existingRoom = this._roomCheck(x, y, room.width, room.height - 1, house[z]);
+    				existingRoom = this.maison.roomCheck(x, y, room.width, room.height - 1, house[z]);
     				break;
     			case 'e':
-    				existingRoom = this._roomCheck(x + 1, y, room.width, room.height, house[z]);
+    				existingRoom = this.maison.roomCheck(x + 1, y, room.width, room.height, house[z]);
     				break;
     			case 's':
-    				existingRoom = this._roomCheck(x, y + 1, room.width, room.height, house[z]);
+    				existingRoom = this.maison.roomCheck(x, y + 1, room.width, room.height, house[z]);
     				break;
     			case 'w':
-    				existingRoom = this._roomCheck(x, y, room.width - 1, room.height, house[z]);
+    				existingRoom = this.maison.roomCheck(x, y, room.width - 1, room.height, house[z]);
     				break;
     			default:
     				break;
@@ -89,7 +89,7 @@ class Render2D {
 
     		// A room was found, so skip this room
     		if(existingRoom === true) {
-    			room.setPlaced(false);
+    			room.placed = false;
     			continue;
     		}
 
@@ -169,7 +169,7 @@ class Render2D {
 
     										// Adjust room and children y positions by child height
     										if(houseX === 0) // Ensures we do this once, instead of for every row
-    											this.adjustY(1); // TODO: make sure this also updates the objects in the queue
+    											this.maison.adjustY(1); // TODO: make sure this also updates the objects in the queue
 
     									}
     								}
@@ -193,7 +193,7 @@ class Render2D {
     									}
 
     									// Adjust room and children x positions by child width
-    									this.adjustX(1);
+    									this.maison.adjustX(1);
     								}
     							}
     							break;
