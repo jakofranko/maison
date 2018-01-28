@@ -155,15 +155,23 @@ class Maison {
 
     }
 
-    // NOTE: THIS IS DESIGNED TO ONLY COVER X AN Y, SO PASS IN THE APPROPRIATE Z LEVEL WHEN CALLING THIS FUNCTION
-    // Given x, y, width, and height, attempt to return coordinates of floor tile for stairs.
-    // Otherwise, return true if room is found, false if no room is found.
-    // (meaning, that the given grid contains only empty space or grass)
+
+    /**
+     * roomCheck - Scan given tiles for any tiles that are not 'air' or 'grass'
+     *
+     * @param  {Number} startX
+     * @param  {Number} startY
+     * @param  {Number} width
+     * @param  {Number} height
+     * @param  {Array} tiles An array of arrays of tiles, such that tiles[x][y] == tile
+     * @returns {Boolean}
+     */
     roomCheck(startX, startY, width, height, tiles) {
     	var roomFound = false;
-    	// z level doesn't exist yet, so obvs, no room
-    	if(!tiles)
+
+    	if(!tiles) // z level doesn't exist yet, so obvs, no room
     		return roomFound;
+
     	for (var x = 0, tilesX = startX; x < width; x++, tilesX++) {
     		for (var y = 0, tilesY = startY; y < height; y++, tilesY++) {
     			if(!tiles[tilesX])
