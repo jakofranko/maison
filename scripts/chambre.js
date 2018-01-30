@@ -9,9 +9,9 @@ class Chambre {
         this.width = Math.getRandomInRange(roomSize[0], roomSize[1]);
         this.height = Math.getRandomInRange(roomSize[0], roomSize[1]);
         this.spawnDirection = null;
-        this.placed = true; // if this is skipped, set to false. Used in item placement
         this.parent = null;
         this.children = [];
+        this._placed = true; // if this is skipped, set to false. Used in item placement
     }
 
     addChild(child) {
@@ -19,5 +19,14 @@ class Chambre {
             child.parent = this;
             this.children.push(child);
         }
+    }
+
+    get placed() {
+        return this._placed;
+    }
+
+    set placed(isPlaced) {
+        this._placed = isPlaced;
+        this.children.forEach(child => child.placed = isPlaced);
     }
 }
