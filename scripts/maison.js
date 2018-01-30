@@ -155,40 +155,6 @@ class Maison {
 
     }
 
-
-    /**
-     * roomCheck - Scan given tiles for any tiles that are not 'air' or 'grass'
-     *
-     * @param  {Number} startX
-     * @param  {Number} startY
-     * @param  {Number} width
-     * @param  {Number} height
-     * @param  {Array} tiles An array of arrays of tiles, such that tiles[x][y] == tile
-     * @returns {Boolean}
-     */
-    roomCheck(startX, startY, width, height, tiles) {
-    	var roomFound = false;
-
-    	if(!tiles) // z level doesn't exist yet, so obvs, no room
-    		return roomFound;
-
-    	for (var x = 0, tilesX = startX; x < width; x++, tilesX++) {
-    		for (var y = 0, tilesY = startY; y < height; y++, tilesY++) {
-    			if(!tiles[tilesX])
-    				continue;
-
-    			if(tiles[tilesX][tilesY] && tiles[tilesX][tilesY].getName() != 'grass' && tiles[tilesX][tilesY].getName() != 'air') {
-					roomFound = true;
-					break;
-    			}
-    		}
-    		if(roomFound)
-    			break;
-    	}
-
-    	return roomFound;
-    }
-
     static getRoomSize(name) {
         const roomSizes = {
         	'foyer': [3, 4], // roomName: [min, max]
