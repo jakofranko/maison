@@ -1,5 +1,8 @@
 class Render2D {
-    constructor(maison, options = {}) {
+    constructor(maison, options = {maxWidth: 50, maxHeight: 50, maxStories: 3}) {
+        // Apply options to this instance
+        Object.assign(this, options);
+
         // Display width and height is in characters, so divide the width and height by the fontSize
         this.maison = maison;
         this.container = options['container'] || document.getElementById("display");
@@ -7,8 +10,8 @@ class Render2D {
 
         this.container.appendChild(this.display.getContainer());
 
-        this.tiles = this._setUpTiles(['n', 'e', 's', 'w'].random());
-        console.log(this.tiles);
+        // this.tiles = this._setUpTiles(['n', 'e', 's', 'w'].random());
+        this.tiles = this._setUpTiles('s');
 
         this._resizeTerminal(display);
         window.addEventListener('resize', this._resizeTerminal.bind(this, display));
@@ -36,6 +39,7 @@ class Render2D {
     // or west, the whole thing needs to be shifted down or to the right, and then
     // the new room added to the new 0,y or x,0 coordinates.
     _setUpTiles(direction) {
+        console.log(direction);
         // The array of tiles to be returned
     	let house = [];
 
@@ -68,16 +72,16 @@ class Render2D {
             // spawn direction, shave off one side in order to skip the shared wall.
     		switch(room.spawnDirection) {
     			case 'n':
-    				existingRoom = this.maison.roomCheck(x, y, room.width, room.height - 1, house[z]);
+    				existingRoom = this._roomCheck(x, y, room.width, room.height - 1, house[z]);
     				break;
     			case 'e':
-    				existingRoom = this.maison.roomCheck(x + 1, y, room.width, room.height, house[z]);
+    				existingRoom = this._roomCheck(x + 1, y, room.width, room.height, house[z]);
     				break;
     			case 's':
-    				existingRoom = this.maison.roomCheck(x, y + 1, room.width, room.height, house[z]);
+    				existingRoom = this._roomCheck(x, y + 1, room.width, room.height, house[z]);
     				break;
     			case 'w':
-    				existingRoom = this.maison.roomCheck(x, y, room.width - 1, room.height, house[z]);
+    				existingRoom = this._roomCheck(x, y, room.width - 1, room.height, house[z]);
     				break;
     			default:
     				break;
@@ -85,6 +89,23 @@ class Render2D {
 
     		// A room was found, so skip this room
     		if(existingRoom === true) {
+                debugger;
+                switch(room.spawnDirection) {
+        			case 'n':
+        				existingRoom = this._roomCheck(x, y, room.width, room.height - 1, house[z]);
+        				break;
+        			case 'e':
+        				existingRoom = this._roomCheck(x + 1, y, room.width, room.height, house[z]);
+        				break;
+        			case 's':
+        				existingRoom = this._roomCheck(x, y + 1, room.width, room.height, house[z]);
+        				break;
+        			case 'w':
+        				existingRoom = this._roomCheck(x, y, room.width - 1, room.height, house[z]);
+        				break;
+        			default:
+        				break;
+        		}
     			room.placed = false;
     			continue;
     		}
@@ -124,8 +145,8 @@ class Render2D {
 
     				// Get the current child and a random spawn direction
     				var child = room.children[k];
-    				var dir = possibleDirections.pop();
-    				child.spawnDirection = dir;
+    				var childSpawnDir = possibleDirections.pop();
+    				child.spawnDirection = childSpawnDir;
 
     				// Now that a child and the direction it will spawn have been chosen:
     				// 1) Check to see if adding this child will exceed the maxWidth or maxHeight properties
@@ -147,7 +168,7 @@ class Render2D {
     					queue.push(child);
 
     				} else if(!exceedsMax) {
-    					switch(dir) {
+    					switch(childSpawnDir) {
     						case 'n':
     							child.x = x;
     							child.y = y - child.height + 1; // plus one so the rooms will share a wall
@@ -181,7 +202,7 @@ class Render2D {
     					queue.push(child);
     				} else {
     					// Adding the child would exceed maxWidth or maxHeight and it cannot be placed above the parent, so skip it
-    					child.setPlaced(false);
+    					child.placed = false;
     					continue;
     				}
     			}
@@ -232,7 +253,7 @@ class Render2D {
     	}
 
     	// If it's the foyer, place the front door
-    	if(room.room == 'foyer') {
+    	if(room.name == 'foyer') {
     		var doorX, doorY;
     		switch(direction) {
     			case 'n': // Rooms will be spawning south, so put the door at the north
@@ -287,7 +308,6 @@ class Render2D {
 
         return tiles;
     }
-
 
     /**
      * _shiftTilesEast - unshift() a column of grass/air to every column based
@@ -477,5 +497,5 @@ class Render2D {
             }
         }
         return list;
-    };
+    }
 }
