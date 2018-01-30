@@ -16,8 +16,6 @@ class Graph {
         this.lineShapeGenerator = d3.linkHorizontal()
             .x(d => d.x)
             .y(d => d.y);
-
-        this.render();
     }
 
     render() {
@@ -34,6 +32,7 @@ class Graph {
             .enter()
             .append("circle")
             .attr("class", "room")
+            .attr("fill", d => d.data.placed ? "blue" : "red")
             .attr("cx", d => d.x)
             .attr("cy", d => d.y)
             .attr("r", d => Math.sqrt(d.data.width * d.data.height));

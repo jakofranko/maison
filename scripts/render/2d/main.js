@@ -12,8 +12,6 @@ class Render2D {
 
         this._resizeTerminal(display);
         window.addEventListener('resize', this._resizeTerminal.bind(this, display));
-
-        this.render();
     }
 
     render() {
