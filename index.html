@@ -62,12 +62,18 @@
     </div>
     <script src="scripts/render/graph.js" type="text/javascript"></script>
     <script>
+        // ROT.RNG.setSeed(1517635105962);
         const maison = new Maison();
         const graph = new Graph(maison);
         const render2D = new Render2D(maison);
 
-        graph.render();
-        render2D.render();
+        try {
+            graph.render();
+            render2D.render();
+        } catch(e) {
+            console.log("RNG SEED: ", ROT.RNG.getSeed())
+            throw e;
+        }
     </script>
 </body>
 </html>

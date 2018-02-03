@@ -10,8 +10,13 @@ class Render2D {
 
         this.container.appendChild(this.display.getContainer());
 
-        this.tiles = this._setUpTiles(['n', 'e', 's', 'w'].random());
-
+        try {
+            this.tiles = this._setUpTiles(['n', 'e', 's', 'w'].random());
+        } catch(e) {
+            console.log("RNG SEED: ", ROT.RNG.getSeed())
+            throw e;
+        }
+        
         this.renderZ = 0;
 
         this._resizeTerminal(display);
