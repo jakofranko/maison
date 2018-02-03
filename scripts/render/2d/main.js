@@ -98,7 +98,7 @@ class Render2D {
                             room.y -= room.height - 1; // plus one so the rooms will share a wall
 
                             if(room.y < 0)
-                                house[z] = this._shiftTilesSouth(room.height, house[room.z], room.z);
+                                house[room.z] = this._shiftTilesSouth(room.height, house[room.z], room.z);
 
                             existingRoom = this._roomCheck(room.x, room.y, room.width, room.height - 1, house[room.z]);
                             break;
@@ -106,7 +106,7 @@ class Render2D {
                             room.x -= room.width - 1; // plus one so the room.parents will share a wall
 
                             if(room.x < 0)
-                                house[z] = this._shiftTilesEast(room.width, house[room.z], room.z);
+                                house[room.z] = this._shiftTilesEast(room.width, house[room.z], room.z);
 
                             existingRoom = this._roomCheck(room.x, room.y, room.width - 1, room.height, house[room.z]);
                             break;
