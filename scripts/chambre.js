@@ -5,7 +5,7 @@ class Chambre {
         this.name = name;
         this.x = 0;
         this.y = 0;
-        this.z = 0;
+        this._z = 0;
         this.width = Math.getRandomInRange(roomSize[0], roomSize[1]);
         this.height = Math.getRandomInRange(roomSize[0], roomSize[1]);
         this.spawnDirection = null;
@@ -19,6 +19,15 @@ class Chambre {
             child.parent = this;
             this.children.push(child);
         }
+    }
+
+    get z() {
+        return this._z;
+    }
+
+    set z(z) {
+        this._z = z;
+        this.children.forEach(child => child.z = z);
     }
 
     get placed() {
