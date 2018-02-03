@@ -90,8 +90,6 @@ class Render2D {
                 }
 
                 // Find a good spawn direction, and shift tiles accordingly
-                // TODO: Remember to set the room's x and y values to it's parent's
-                // values when adding the rooms children to the queue
                 while(possibleDirections.length) {
                     let currentDirection = possibleDirections.pop();
 
