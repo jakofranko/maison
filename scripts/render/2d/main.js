@@ -13,22 +13,22 @@ class Render2D {
         // this.tiles = this._setUpTiles(['n', 'e', 's', 'w'].random());
         this.tiles = this._setUpTiles('s');
 
+        this.renderZ = 0;
+
         this._resizeTerminal(display);
         window.addEventListener('resize', this._resizeTerminal.bind(this, display));
     }
 
     render() {
-        let levels = this.tiles.length,
-            width = this.tiles[0].length,
-            height = this.tiles[0][0].length,
+        let width = this.tiles[this.renderZ].length,
+            height = this.tiles[this.renderZ][0].length,
             tile;
 
-        for (var z = 0; z < levels; z++) {
-            for (var x  = 0; x < width; x ++) {
-                for (var y = 0; y < height; y++) {
-                    tile = this.tiles[z][x][y];
-                    this.display.draw(x, y, tile._char, tile._foreground, tile._background);
-                }
+        for (var x  = 0; x < width; x ++) {
+            for (var y = 0; y < height; y++) {
+                tile = this.tiles[this.renderZ][x][y];
+                if(!tile) debugger;
+                this.display.draw(x, y, tile._char, tile._foreground, tile._background);
             }
         }
     }
