@@ -16,7 +16,7 @@ class Render2D {
             console.log("RNG SEED: ", ROT.RNG.getSeed())
             throw e;
         }
-        
+
         this.renderZ = 0;
 
         this._resizeTerminal(display);
