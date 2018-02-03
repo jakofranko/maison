@@ -1,5 +1,5 @@
 Math.getRandomInRange = function(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
+    return Math.floor(ROT.RNG.getUniform() * (max - min + 1)) + min;
 };
 
 consoleLogGrid = function(grid, field, items, z, hlX, hlY) {
