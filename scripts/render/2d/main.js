@@ -55,62 +55,88 @@ class Render2D {
     	// 6. Add the child (with assigned x, y, and z values) to the queue of rooms to render
     	while(queue.length > 0) {
     		let room = queue.shift();
-    		let possibleDirections = this.maison.possibleDirections[direction].randomize();
-    		let x, y, z;
+            let x, y, z;
+            let possibleDirections = this.maison.possibleDirections[direction].randomize();
     		let existingRoom = false;
+
+            if(room.parent) {
+                // First, check that adding the new room does not exceed the maximum limits
+                let exceedsMax = (
+                    room.width + house[room.z].length > this.maxWidth ||
+                    room.height + house[room.z][0].length > this.maxHeight
+                );
+
+                // If it does, try to put it on the z-level above, else, skip it
+                if(exceedsMax && room.z + 1 <= this.maxStories) {
+                    room.z += 1;
+
+                    // Put it in the back of the queue
+                    queue.push(room);
+                } else if(exceedsMax) {
+                    continue;
+                }
+
+                // Find a good spawn direction, and shift tiles accordingly
+                // TODO: Remember to set the room's x and y values to it's parent's
+                // values when adding the rooms children to the queue
+                while(possibleDirections.length) {
+                    let currentDirection = possibleDirections.pop();
+
+                    switch(currentDirection) {
+                        case 'n':
+                            room.y -= room.height - 1; // plus one so the rooms will share a wall
+
+                            if(room.y < 0)
+                                house[z] = this._shiftTilesSouth(room.height, house[room.z], room.z);
+
+                            existingRoom = this._roomCheck(room.x, room.y, room.width, room.height - 1, house[room.z]);
+                            break;
+                        case 'w':
+                            room.x -= room.width - 1; // plus one so the room.parents will share a wall
+
+                            if(room.x < 0)
+                                house[z] = this._shiftTilesEast(room.width, house[room.z], room.z);
+
+                            existingRoom = this._roomCheck(room.x, room.y, room.width - 1, room.height, house[room.z]);
+                            break;
+                        case 'e':
+                            room.x += room.parent.width - 1; // minus one so the room.parents will share a wall
+
+                            existingRoom = this._roomCheck(room.x + 1, room.y, room.width, room.height, house[room.z]);
+                            break;
+                        case 's':
+                            room.y += room.parent.height - 1; // minus one so the rooms will share a wall
+
+                            existingRoom = this._roomCheck(room.x, room.y + 1, room.width, room.height, house[room.z]);
+                            break;
+                        default:
+                            throw new Error("There are no more possible directions. This should not be possible...heh heh.");
+                    }
+
+                    // A room was found, so try another direction
+            		if(existingRoom === true) {
+                        room.x = room.parent.x;
+                        room.y = room.parent.y;
+            			continue;
+            		} else {
+                        room.spawnDirection = currentDirection;
+                        break;
+                    }
+                }
+
+                // If a place could not be found, skip this room.
+                if(room.spawnDirection === undefined || room.spawnDirection === null) {
+                    room.placed = false;
+                    continue;
+                }
+            }
 
     		// Render room tiles
     		let roomTiles = this._renderRoom(room, direction);
+            x = room.x,
+            y = room.y,
+            z = room.z;
 
-    		// Add room tiles to our house tiles
-    		x = room.x;
-    		y = room.y;
-    		z = room.z;
-
-    		// Check Maison instance (this.maison) to see if a room exists
-            // already at the current room's location. Depending on the room
-            // spawn direction, shave off one side in order to skip the shared wall.
-    		switch(room.spawnDirection) {
-    			case 'n':
-    				existingRoom = this._roomCheck(x, y, room.width, room.height - 1, house[z]);
-    				break;
-    			case 'e':
-    				existingRoom = this._roomCheck(x + 1, y, room.width, room.height, house[z]);
-    				break;
-    			case 's':
-    				existingRoom = this._roomCheck(x, y + 1, room.width, room.height, house[z]);
-    				break;
-    			case 'w':
-    				existingRoom = this._roomCheck(x, y, room.width - 1, room.height, house[z]);
-    				break;
-    			default:
-    				break;
-    		}
-
-    		// A room was found, so skip this room
-    		if(existingRoom === true) {
-                debugger;
-                switch(room.spawnDirection) {
-        			case 'n':
-        				existingRoom = this._roomCheck(x, y, room.width, room.height - 1, house[z]);
-        				break;
-        			case 'e':
-        				existingRoom = this._roomCheck(x + 1, y, room.width, room.height, house[z]);
-        				break;
-        			case 's':
-        				existingRoom = this._roomCheck(x, y + 1, room.width, room.height, house[z]);
-        				break;
-        			case 'w':
-        				existingRoom = this._roomCheck(x, y, room.width - 1, room.height, house[z]);
-        				break;
-        			default:
-        				break;
-        		}
-    			room.placed = false;
-    			continue;
-    		}
-
-    		// No existing room was found, so render on!
             // Initialize the z-level, if not set already.
     		if(!house[z]) {
     			if(z === 0)
@@ -133,78 +159,18 @@ class Render2D {
     		// Fill in missing spaces with grass
     		house = this._spaceFill(house);
 
-    		// Process the room's children if it has any
+    		// Put room's children in the queue
     		if(room.children.length > 0) {
     			// Pick direction to branch from
     			for (var k = 0; k < room.children.length; k++) {
-    				// These might have changed since the last iteration. Make sure they
-    				// are up-to-date with the newest location of the current room
-    				x = room.x;
-    				y = room.y;
-    				z = room.z;
+    				// Set all children's coordinates to match their parent,
+                    // so that when a spawn direction is chosen, the child can
+                    // be placed relative to the parent.
+    				room.children[k].x = room.x;
+    				room.children[k].y = room.y;
+    				room.children[k].z = room.z;
 
-    				// Get the current child and a random spawn direction
-    				var child = room.children[k];
-    				var childSpawnDir = possibleDirections.pop();
-    				child.spawnDirection = childSpawnDir;
-
-    				// Now that a child and the direction it will spawn have been chosen:
-    				// 1) Check to see if adding this child will exceed the maxWidth or maxHeight properties
-    				// 2) If it will, instead stack the room on top of its parent and place stairs
-    				// 3) Otherwise, shift the house tiles if necessary
-    				// 4) Set the room and child x,y coordinates
-    				// 5) Determine a place on the wall the rooms will share, and add a door
-    				var exceedsMax = (
-    					child.width + house[z].length > this.maxWidth ||
-    					child.height + house[z][0].length > this.maxHeight
-    				);
-    				if(exceedsMax && z + 1 <= this.maxStories) {
-    					// Set the child's x, y, and z levels...
-    					child.x = x;
-    					child.y = y;
-    					child.setZ(z + 1);
-
-    					// And push it into the queue.
-    					queue.push(child);
-
-    				} else if(!exceedsMax) {
-    					switch(childSpawnDir) {
-    						case 'n':
-    							child.x = x;
-    							child.y = y - child.height + 1; // plus one so the rooms will share a wall
-
-    							if(child.y < 0)
-                                    house[z] = this._shiftTilesSouth(child.height, house[z], z);
-
-    							break;
-    						// Shift whole house 'east' by using Array.prototype.unshift()
-    						case 'w':
-    							child.x = room.x - child.width + 1; // plus one so the rooms will share a wall
-    							child.y = room.y || 0;
-
-    							if(child.x < 0)
-    								house[z] = this._shiftTilesEast(child.width, house[z], z);
-
-    							break;
-    						case 'e':
-    							child.x = room.x + room.width - 1; // minus one so the rooms will share a wall
-    							child.y = room.y || 0;
-    							break;
-    						case 's':
-    							child.x = room.x || 0;
-    							child.y = room.y + room.height - 1; // minus one so the rooms will share a wall
-    							break;
-    						default:
-    							throw new Error("There are no more possible directions. This should not be possible...heh heh.");
-    					}
-
-    					// Add the child room to the queue
-    					queue.push(child);
-    				} else {
-    					// Adding the child would exceed maxWidth or maxHeight and it cannot be placed above the parent, so skip it
-    					child.placed = false;
-    					continue;
-    				}
+    				queue.push(room.children[k]);
     			}
     		}
     	}
