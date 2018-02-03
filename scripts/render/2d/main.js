@@ -10,8 +10,7 @@ class Render2D {
 
         this.container.appendChild(this.display.getContainer());
 
-        // this.tiles = this._setUpTiles(['n', 'e', 's', 'w'].random());
-        this.tiles = this._setUpTiles('s');
+        this.tiles = this._setUpTiles(['n', 'e', 's', 'w'].random());
 
         this.renderZ = 0;
 
