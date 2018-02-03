@@ -74,6 +74,15 @@ class Render2D {
                 if(exceedsMax && room.z + 1 <= this.maxStories) {
                     room.z += 1;
 
+                    // Initialize floor if it doesn't exist
+                    if(!house[room.z]) {
+                        house[room.z] = new Array(house[0].length);
+                        for(let i = 0; i < house[room.z].length; i++) {
+                            if(!house[room.z]) debugger;
+                            house[room.z][i] = new Array(house[0][i].length);
+                        }
+                    }
+
                     // Put it in the back of the queue
                     queue.push(room);
                 } else if(exceedsMax) {
