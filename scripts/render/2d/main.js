@@ -85,29 +85,25 @@ class Render2D {
             let possibleDirections = this.maison.possibleDirections[direction].randomize();
     		let existingRoom = false;
 
+            if(room.z > 0) debugger;
+
             if(room.parent) {
                 // First, check that adding the new room does not exceed the maximum limits
                 let exceedsMax = (
-                    room.width + house[room.z].length > this.maxWidth ||
-                    room.height + house[room.z][0].length > this.maxHeight
+                    house[room.z] !== undefined &&
+                    (room.width + house[room.z].length > this.maxWidth ||
+                    room.height + house[room.z][0].length > this.maxHeight)
                 );
 
                 // If it does, try to put it on the z-level above, else, skip it
                 if(exceedsMax && room.z + 1 <= this.maxStories) {
                     room.z += 1;
 
-                    // Initialize floor if it doesn't exist
-                    if(!house[room.z]) {
-                        house[room.z] = new Array(house[0].length);
-                        for(let i = 0; i < house[room.z].length; i++) {
-                            if(!house[room.z]) debugger;
-                            house[room.z][i] = new Array(house[0][i].length);
-                        }
-                    }
-
                     // Put it in the back of the queue
                     queue.push(room);
+                    continue;
                 } else if(exceedsMax) {
+                    room.placed = false;
                     continue;
                 }
 
@@ -162,9 +158,14 @@ class Render2D {
                     }
                 }
 
-                // If a place could not be found, skip this room.
+                // If a place could not be found, increment the z level, and
+                // put it in the back of the queue.
                 if(room.spawnDirection === undefined || room.spawnDirection === null) {
-                    room.placed = false;
+                    room.x = room.parent.x;
+                    room.y = room.parent.y;
+                    room.z++;
+
+                    queue.push(room);
                     continue;
                 }
             }
@@ -324,6 +325,7 @@ class Render2D {
      */
     _shiftTilesEast(amount, tiles, z) {
         let tile;
+        if(!tiles || !tiles[0]) debugger;
         for(let x = 0; x < amount; x++) {
             tiles.unshift(new Array(tiles[0].length));
 
