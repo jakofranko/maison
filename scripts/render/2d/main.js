@@ -21,6 +21,7 @@ class Render2D {
 
         this._resizeTerminal(display);
         window.addEventListener('resize', this._resizeTerminal.bind(this, display));
+        window.addEventListener('keydown', this._handleKeydown.bind(this));
     }
 
     render() {
@@ -467,6 +468,21 @@ class Render2D {
         // Set fontsize based on size of display
         let fontSize = this.display.computeFontSize(parent.clientWidth, parent.clientHeight);
         this.display.setOptions({ fontSize });
+    }
+
+    _handleKeydown(e) {
+        switch(e.key) {
+            case '>':
+                this.renderZ = this.renderZ <= 0 ? 0 : this.renderZ - 1;
+                break;
+            case '<':
+                this.renderZ = this.renderZ >= this.tiles.length - 1 ? this.tiles.length - 1 : this.renderZ + 1;
+                break;
+            default:
+                break;
+        }
+
+        this.render();
     }
 
     /**
