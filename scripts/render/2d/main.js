@@ -1,14 +1,20 @@
 class Render2D {
     constructor(maison, options = {maxWidth: 50, maxHeight: 50, maxStories: 3}) {
-        // Apply options to this instance
-        Object.assign(this, options);
-
         // Display width and height is in characters, so divide the width and height by the fontSize
         this.maison = maison;
         this.container = options['container'] || document.getElementById("display");
         this.display = new ROT.Display();
 
         this.container.appendChild(this.display.getContainer());
+        this._resizeTerminal(display);
+
+        // Apply options to this instance, and make sure max sizes don't exceed
+        // the display width and height. Also, make room for a status bar.
+        let termWidth = this.display.getOptions().width;
+        let termHeight = this.display.getOptions().height;
+        options.maxWidth = options.maxWidth <= termWidth ? options.maxWidth : termWidth;
+        options.maxHeight = options.maxHeight < termHeight ? options.maxHeight : termHeight - 1;
+        Object.assign(this, options);
 
         try {
             this.tiles = this._setUpTiles(['n', 'e', 's', 'w'].random());
@@ -19,7 +25,7 @@ class Render2D {
 
         this.renderZ = 0;
 
-        this._resizeTerminal(display);
+
         window.addEventListener('resize', this._resizeTerminal.bind(this, display));
         window.addEventListener('keydown', this._handleKeydown.bind(this));
     }
@@ -27,7 +33,11 @@ class Render2D {
     render() {
         let width = this.tiles[this.renderZ].length,
             height = this.tiles[this.renderZ][0].length,
+            termHeight = this.display.getOptions().height,
             tile;
+
+        // Clearn display
+        this.display.clear();
 
         for (var x  = 0; x < width; x ++) {
             for (var y = 0; y < height; y++) {
@@ -36,6 +46,9 @@ class Render2D {
                 this.display.draw(x, y, tile._char, tile._foreground, tile._background);
             }
         }
+
+        // Status line
+        this.display.drawText(0, termHeight - 1, `Viewing z-level ${this.renderZ} of ${this.tiles.length - 1}`)
     }
 
 
