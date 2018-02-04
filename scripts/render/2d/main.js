@@ -37,11 +37,25 @@ class Render2D {
         }
     }
 
-    // Because a room could be tacked on to the north, x,y coordinate 0,0 is going to
-    // change. Rooms to the south and east of their ancestor are not a problem; just
-    // stick the 'cursor' at a brand new x or y coordinate. But if it's to the north
-    // or west, the whole thing needs to be shifted down or to the right, and then
-    // the new room added to the new 0,y or x,0 coordinates.
+
+    /**
+     * _setUpTiles - Given a Maison graph, generate a 2D grid of tiles.
+     * The process is as follows:
+     * 1) Create a queue with the first item being the root node of the graph
+     * 2) Begin looping through the queue, shifting the first item of the array off
+     * 3) For each room in the queue, check to see if placing it would exceed
+     *    the maximum width or height. If it would, put it on the next floor, or skip it.
+     * 4) Loop through possible 'spawnDirections', and for each direction check to see if
+     *    the house tiles need to be shifted if the room is placed 'n' or 'w',
+     *    and check to make sure there is not an existing room in the area the new
+     *    room would be placed. If a suitable location can't be found, skip the room.
+     * 5) If the room can be placed, then add the room tiles to the house tiles.
+     * 6) Add the current room's children to the queue, and set their x, y, and z
+     *    coordinates to be the same as the parent (to allow relative positioning to the parent)
+     *
+     * @param  {type} direction description
+     * @returns {type}           description
+     */
     _setUpTiles(direction) {
         console.log(direction);
         // The array of tiles to be returned
@@ -50,13 +64,7 @@ class Render2D {
     	// This will be an array of rooms to do next.
     	let queue = [this.maison.graph];
 
-    	// Process the queue until it's empty. Processing a room will consist of the following:
-    	// 1. Draw the room starting at the designated x, y, and z
-    	// 2. Loop through the room's children. For each child, pick a direction that the room will be added on to, and then detect whether a room already exists in that direction. If a room exists and adding a story would not exceed the maximum story limit of a house, add an up stairs and a down stairs in the current room and give the child room the same x,y coordinates of the parent room, set all of the child rooms chidren nodes to the new z level, and then add the child to the queue. If a room exists but you cannot add a story, skip the child.
-    	// 3. If a room does not exist in the projected space, then assign the x,y start location to the child based on the current child's width and height, such that when starting at x,y and then rendering the room tiles, it will connect to the door placed in step 5 as well as share a wall with the parent node.
-    	// 4. If the x or y values of the new room are negative, shift the x and y values of the child and the parent until they are no longer negative while simultaneously adding spaces onto the house in the appropriate direction.
-    	// 5. After the new x and y values of the child and parent are known (and if they are on the same z level), it is possible to know what x and y coordinates they will share. This should be the shared wall. After getting a list of the coordinates they will share, eliminate the extreme x or y coordinates to avoid placing a door in a corner, and then randomly pick a coordinate for a door and replace the wall tile with a door tile.
-    	// 6. Add the child (with assigned x, y, and z values) to the queue of rooms to render
+    	// Process queue til empty
     	while(queue.length > 0) {
     		let room = queue.shift();
             let x, y, z;
@@ -93,6 +101,11 @@ class Render2D {
                 while(possibleDirections.length) {
                     let currentDirection = possibleDirections.pop();
 
+                    // Because a room could be tacked on to the north or west, x,y coordinate 0,0 can
+                    // change. Rooms to the south and east of their ancestor are not a problem; just
+                    // stick the 'cursor' at a brand new x or y coordinate. But if it's to the north
+                    // or west, the whole thing needs to be shifted down or to the right, and then
+                    // the new room added to the new 0,y or x,0 coordinates.
                     switch(currentDirection) {
                         case 'n':
                             room.y -= room.height - 1; // plus one so the rooms will share a wall
