@@ -6,7 +6,7 @@ class Render2D {
         this.display = new ROT.Display();
 
         this.container.appendChild(this.display.getContainer());
-        this._resizeTerminal(display);
+        this._resizeTerminal(this.display);
 
         // Apply options to this instance, and make sure max sizes don't exceed
         // the display width and height. Also, make room for a status bar.
@@ -26,7 +26,7 @@ class Render2D {
         this.renderZ = 0;
 
 
-        window.addEventListener('resize', this._resizeTerminal.bind(this, display));
+        window.addEventListener('resize', this._resizeTerminal.bind(this, this.display));
         window.addEventListener('keydown', this._handleKeydown.bind(this));
     }
 
