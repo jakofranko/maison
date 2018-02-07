@@ -73,17 +73,17 @@ class Render2D {
     _setUpTiles(direction) {
         console.log(direction);
         // The array of tiles to be returned
-    	let house = [];
+        let house = [];
 
-    	// This will be an array of rooms to do next.
-    	let queue = [this.maison.graph];
+        // This will be an array of rooms to do next.
+        let queue = [this.maison.graph];
 
-    	// Process queue til empty
-    	while(queue.length > 0) {
-    		let room = queue.shift();
+        // Process queue til empty
+        while(queue.length > 0) {
+            let room = queue.shift();
             let x, y, z;
             let possibleDirections = this.maison.possibleDirections[direction].randomize();
-    		let existingRoom = false;
+            let existingRoom = false;
 
             if(room.z > 0) debugger;
 
@@ -91,13 +91,14 @@ class Render2D {
                 // First, check that adding the new room does not exceed the maximum limits
                 let exceedsMax = (
                     house[room.z] !== undefined &&
-                    (room.width + house[room.z].length > this.maxWidth ||
+                    (room.z > this.maxStories ||
+                    room.width + house[room.z].length > this.maxWidth ||
                     room.height + house[room.z][0].length > this.maxHeight)
                 );
 
                 // If it does, try to put it on the z-level above, else, skip it
                 if(exceedsMax && room.z + 1 <= this.maxStories) {
-                    room.z += 1;
+                    room.z++;
 
                     // Put it in the back of the queue
                     queue.push(room);
@@ -148,16 +149,18 @@ class Render2D {
                     }
 
                     // A room was found, so try another direction
-            		if(existingRoom === true) {
+                    if(existingRoom === true) {
                         room.x = room.parent.x;
                         room.y = room.parent.y;
-            			continue;
-            		} else {
+                        continue;
+                    } else {
                         room.spawnDirection = currentDirection;
                         break;
                     }
                 }
 
+                // TODO: handle what happens when we can't place the room on a
+                // higher z-level because it exceeds the limits. This logic shouldn't be duplicated here and at the top of the loop? (exceedsMax)
                 // If a place could not be found, increment the z level, and
                 // put it in the back of the queue.
                 if(room.spawnDirection === undefined || room.spawnDirection === null) {
@@ -170,120 +173,120 @@ class Render2D {
                 }
             }
 
-    		// Render room tiles
-    		let roomTiles = this._renderRoom(room, direction);
+            // Render room tiles
+            let roomTiles = this._renderRoom(room, direction);
             x = room.x,
             y = room.y,
             z = room.z;
 
             // Initialize the z-level, if not set already.
-    		if(!house[z]) {
-    			if(z === 0)
-    				house[z] = new Array(roomTiles.length);
-    			else
-    				house[z] = new Array(house[z - 1].length); // Make the new z level the same length as the level beneathe it
-    		}
+            if(!house[z]) {
+                if(z === 0)
+                    house[z] = new Array(roomTiles.length);
+                else
+                    house[z] = new Array(house[z - 1].length); // Make the new z level the same length as the level beneathe it
+            }
 
-    		for(var i = 0, roomX = x; i < roomTiles.length; i++, roomX++) {
-    			if(!house[z][roomX])
-    				house[z][roomX] = new Array(roomTiles[i].length);
+            for(var i = 0, roomX = x; i < roomTiles.length; i++, roomX++) {
+                if(!house[z][roomX])
+                    house[z][roomX] = new Array(roomTiles[i].length);
 
-    			for(var j = 0, roomY = y; j < roomTiles[i].length; j++, roomY++) {
-    				// Don't overwrite an existing room tile
-    				if(!house[z][roomX][roomY] || house[z][roomX][roomY].getName() == 'grass' || house[z][roomX][roomY].getName() == 'air')
-    					house[z][roomX][roomY] = roomTiles[i][j];
-    			}
-    		}
+                for(var j = 0, roomY = y; j < roomTiles[i].length; j++, roomY++) {
+                    // Don't overwrite an existing room tile
+                    if(!house[z][roomX][roomY] || house[z][roomX][roomY].getName() == 'grass' || house[z][roomX][roomY].getName() == 'air')
+                        house[z][roomX][roomY] = roomTiles[i][j];
+                }
+            }
 
-    		// Fill in missing spaces with grass
-    		house = this._spaceFill(house);
+            // Fill in missing spaces with grass
+            house = this._spaceFill(house);
 
-    		// Put room's children in the queue
-    		if(room.children.length > 0) {
-    			// Pick direction to branch from
-    			for (var k = 0; k < room.children.length; k++) {
-    				// Set all children's coordinates to match their parent,
+            // Put room's children in the queue
+            if(room.children.length > 0) {
+                // Pick direction to branch from
+                for (var k = 0; k < room.children.length; k++) {
+                    // Set all children's coordinates to match their parent,
                     // so that when a spawn direction is chosen, the child can
                     // be placed relative to the parent.
-    				room.children[k].x = room.x;
-    				room.children[k].y = room.y;
-    				room.children[k].z = room.z;
+                    room.children[k].x = room.x;
+                    room.children[k].y = room.y;
+                    room.children[k].z = room.z;
 
-    				queue.push(room.children[k]);
-    			}
-    		}
-    	}
+                    queue.push(room.children[k]);
+                }
+            }
+        }
 
-    	// One last time, fill out any missing tiles with air or grass
-    	house = this._spaceFill(house);
+        // One last time, fill out any missing tiles with air or grass
+        house = this._spaceFill(house);
 
         // Place doors
         // house = this._placeDoors(house);
 
-    	// Place stairs
+        // Place stairs
         // house = this._placeStairs(house);
 
-    	// Now that the locations of all rooms have been set and adjusted, place items in each room
-    	// this._placeItems(this.graph);
+        // Now that the locations of all rooms have been set and adjusted, place items in each room
+        // this._placeItems(this.graph);
 
-    	// for (var z = 0; z < house.length; z++) {
-    	// 	console.log(z);
-    	// 	_consoleLogGrid(house[z], '_char');
-    	// }
-    	// this._testZeroIndex(house, [room, house]);
-    	return house;
+        // for (var z = 0; z < house.length; z++) {
+        //     console.log(z);
+        //     _consoleLogGrid(house[z], '_char');
+        // }
+        // this._testZeroIndex(house, [room, house]);
+        return house;
     };
 
     _renderRoom(room, direction) {
-    	var w = room.width;
-    	var h = room.height;
-    	var horizontalWall = TileRepository.create('indoor wall-horizontal');
-    	var verticalWall = TileRepository.create('indoor wall-vertical');
-    	var floor = TileRepository.create('floor');
-    	var tiles = new Array(w); // Initialize the x-length
+        var w = room.width;
+        var h = room.height;
+        var horizontalWall = TileRepository.create('indoor wall-horizontal');
+        var verticalWall = TileRepository.create('indoor wall-vertical');
+        var floor = TileRepository.create('floor');
+        var tiles = new Array(w); // Initialize the x-length
 
-    	for (var x = 0; x < w; x++) {
-    		// Initialize the y-length if it doesn't exist yet.
-    		if(!tiles[x])
-    			tiles[x] = new Array(h);
+        for (var x = 0; x < w; x++) {
+            // Initialize the y-length if it doesn't exist yet.
+            if(!tiles[x])
+                tiles[x] = new Array(h);
 
-    		for (var y = 0; y < h; y++) {
-    			if(y === 0 || y === h - 1)
-    				tiles[x][y] = horizontalWall;
-    			else if(x === 0 || x === w - 1)
-    				tiles[x][y] = verticalWall;
-    			else
-    				tiles[x][y] = floor;
-    		}
-    	}
+            for (var y = 0; y < h; y++) {
+                if(y === 0 || y === h - 1)
+                    tiles[x][y] = horizontalWall;
+                else if(x === 0 || x === w - 1)
+                    tiles[x][y] = verticalWall;
+                else
+                    tiles[x][y] = floor;
+            }
+        }
 
-    	// If it's the foyer, place the front door
-    	if(room.name == 'foyer') {
-    		var doorX, doorY;
-    		switch(direction) {
-    			case 'n': // Rooms will be spawning south, so put the door at the north
-    				doorX = Math.getRandomInRange(room.x + 1, room.width - 2);
-    				doorY = room.y;
-    				break;
-    			case 'e': // Rooms will be spawning west, so put door at the east
-    				doorX = room.width - 1;
-    				doorY = Math.getRandomInRange(room.y + 1, room.height - 2);
-    				break;
-    			case 's':
-    				doorX = Math.getRandomInRange(room.x + 1, room.width - 2);
-    				doorY = room.height - 1;
-    				break;
-    			case 'w':
-    				doorX = room.x;
-    				doorY = Math.getRandomInRange(room.y + 1, room.height - 2);
-    				break;
-    			default:
-    				break;
-    		}
-    		tiles[doorX][doorY] = TileRepository.create('door');
-    	}
+        // If it's the foyer, place the front door
+        if(room.name == 'foyer') {
+            var doorX, doorY;
+            switch(direction) {
+                case 'n': // Rooms will be spawning south, so put the door at the north
+                    doorX = Math.getRandomInRange(room.x + 1, room.width - 2);
+                    doorY = room.y;
+                    break;
+                case 'e': // Rooms will be spawning west, so put door at the east
+                    doorX = room.width - 1;
+                    doorY = Math.getRandomInRange(room.y + 1, room.height - 2);
+                    break;
+                case 's':
+                    doorX = Math.getRandomInRange(room.x + 1, room.width - 2);
+                    doorY = room.height - 1;
+                    break;
+                case 'w':
+                    doorX = room.x;
+                    doorY = Math.getRandomInRange(room.y + 1, room.height - 2);
+                    break;
+                default:
+                    break;
+            }
+            tiles[doorX][doorY] = TileRepository.create('door');
+        }
 
-    	return tiles;
+        return tiles;
     }
 
 
@@ -343,26 +346,26 @@ class Render2D {
     }
 
     _spaceFill(grid) {
-    	for (var z = 0; z < grid.length; z++) {
-    		// If there are varying heights, find the highest column
-    		var height = grid[z].reduce(function(prev, curr) {
-    			if(typeof prev === 'object') prev = prev.length;
-    			if(typeof curr === 'object') curr = curr.length;
-    			return Math.max(prev, curr);
-    		}, 0);
-    		for (var x = 0; x < grid[z].length; x++) { // grid[z].length == width
-    			if(!grid[z][x])
-    				grid[z][x] = new Array(height);
+        for (var z = 0; z < grid.length; z++) {
+            // If there are varying heights, find the highest column
+            var height = grid[z].reduce(function(prev, curr) {
+                if(typeof prev === 'object') prev = prev.length;
+                if(typeof curr === 'object') curr = curr.length;
+                return Math.max(prev, curr);
+            }, 0);
+            for (var x = 0; x < grid[z].length; x++) { // grid[z].length == width
+                if(!grid[z][x])
+                    grid[z][x] = new Array(height);
 
-    			for (var y = 0; y < height; y++) {
-    				if(!grid[z][x][y]) {
-    					var tile = (z === 0) ? TileRepository.create('grass') : TileRepository.create('air');
-    					grid[z][x][y] = tile;
-    				}
-    			}
-    		}
-    	}
-    	return grid;
+                for (var y = 0; y < height; y++) {
+                    if(!grid[z][x][y]) {
+                        var tile = (z === 0) ? TileRepository.create('grass') : TileRepository.create('air');
+                        grid[z][x][y] = tile;
+                    }
+                }
+            }
+        }
+        return grid;
     }
 
     _placeDoors(tiles) {
@@ -411,31 +414,31 @@ class Render2D {
     _placeStairs(tiles) {
         // TODO: should be refactored, was just cut from above code
         // If the house is more than one z level, place stairs where there is a valid floor tile on both z levels
-    	for (var z = 0; z < house.length; z++) {
-    		if(!house[z + 1])
-    			break;
+        for (var z = 0; z < house.length; z++) {
+            if(!house[z + 1])
+                break;
 
-    		var floorTiles = this._getFloorTiles(house[z]);
-    		var randomFloor = false;
-    		for(var o = 0; o < floorTiles.length; o++) {
-    			var f = floorTiles[o].split(",");
-    			if(!house[z + 1][f[0]])
-    				debugger;
-    			if(!house[z + 1][f[0]][f[1]])
-    				continue;
-    			if(house[z + 1][f[0]][f[1]].getName() == 'floor') {
-    				randomFloor = {
-    					x: f[0],
-    					y: f[1]
-    				};
-    				break;
-    			}
-    		}
-    		if(randomFloor !== false) {
-    			house[z][randomFloor.x][randomFloor.y] = TileRepository.create('stairsUp');
-    			house[z + 1][randomFloor.x][randomFloor.y] = TileRepository.create('stairsDown');
-    		}
-    	}
+            var floorTiles = this._getFloorTiles(house[z]);
+            var randomFloor = false;
+            for(var o = 0; o < floorTiles.length; o++) {
+                var f = floorTiles[o].split(",");
+                if(!house[z + 1][f[0]])
+                    debugger;
+                if(!house[z + 1][f[0]][f[1]])
+                    continue;
+                if(house[z + 1][f[0]][f[1]].getName() == 'floor') {
+                    randomFloor = {
+                        x: f[0],
+                        y: f[1]
+                    };
+                    break;
+                }
+            }
+            if(randomFloor !== false) {
+                house[z][randomFloor.x][randomFloor.y] = TileRepository.create('stairsUp');
+                house[z + 1][randomFloor.x][randomFloor.y] = TileRepository.create('stairsDown');
+            }
+        }
     }
 
     /**
@@ -449,27 +452,27 @@ class Render2D {
      * @returns {Boolean}
      */
     _roomCheck(startX, startY, width, height, tiles) {
-    	var roomFound = false;
+        var roomFound = false;
 
-    	if(!tiles) // z level doesn't exist yet, so obvs, no room
-    		return roomFound;
+        if(!tiles) // z level doesn't exist yet, so obvs, no room
+            return roomFound;
 
-    	for (var x = 0, tilesX = startX; x < width; x++, tilesX++) {
-    		for (var y = 0, tilesY = startY; y < height; y++, tilesY++) {
-    			if(!tiles[tilesX])
-    				continue;
+        for (var x = 0, tilesX = startX; x < width; x++, tilesX++) {
+            for (var y = 0, tilesY = startY; y < height; y++, tilesY++) {
+                if(!tiles[tilesX])
+                    continue;
 
-    			if(tiles[tilesX][tilesY] && tiles[tilesX][tilesY].getName() != 'grass' && tiles[tilesX][tilesY].getName() != 'air') {
+                if(tiles[tilesX][tilesY] && tiles[tilesX][tilesY].getName() != 'grass' && tiles[tilesX][tilesY].getName() != 'air') {
                     consoleLogGrid(tiles, "_char", false, false, tilesX, tilesY);
-					roomFound = true;
-					break;
-    			}
-    		}
-    		if(roomFound)
-    			break;
-    	}
+                    roomFound = true;
+                    break;
+                }
+            }
+            if(roomFound)
+                break;
+        }
 
-    	return roomFound;
+        return roomFound;
     }
 
     _resizeTerminal() {
