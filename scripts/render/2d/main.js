@@ -71,7 +71,6 @@ class Render2D {
      * @returns {type}           description
      */
     _setUpTiles(direction) {
-        console.log(direction);
         // The array of tiles to be returned
         let house = [];
 
@@ -85,7 +84,6 @@ class Render2D {
             let possibleDirections = this.maison.possibleDirections[direction].randomize();
             let existingRoom = false;
 
-            if(room.z > 0) debugger;
 
             if(room.parent) {
                 // First, check that adding the new room does not exceed the maximum limits
