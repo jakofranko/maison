@@ -233,7 +233,7 @@ class Render2D {
         // }
         // this._testZeroIndex(house, [room, house]);
         return house;
-    };
+    }
 
     _renderRoom(room, direction) {
         var w = room.width;
