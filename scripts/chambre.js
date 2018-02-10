@@ -15,7 +15,7 @@ class Chambre {
     }
 
     addChild(child) {
-    	if(child !== false) {
+        if(child !== false) {
             child.parent = this;
             this.children.push(child);
         }
