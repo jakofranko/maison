@@ -33,7 +33,9 @@ class Render2D {
     render() {
         let width = this.tiles[this.renderZ].length,
             height = this.tiles[this.renderZ][0].length,
+            termWidth = this.display.getOptions().width,
             termHeight = this.display.getOptions().height,
+            offsetWidth = (termWidth - width) / 2,
             tile;
 
         // Clearn display
@@ -43,7 +45,7 @@ class Render2D {
             for (var y = 0; y < height; y++) {
                 tile = this.tiles[this.renderZ][x][y];
                 if(!tile) debugger;
-                this.display.draw(x, y, tile._char, tile._foreground, tile._background);
+                this.display.draw(x + offsetWidth, y, tile._char, tile._foreground, tile._background);
             }
         }
 
@@ -474,16 +476,11 @@ class Render2D {
     }
 
     _resizeTerminal() {
-        let options = this.display.getOptions();
         let parent = this.display.getContainer().parentElement;
 
         // Set size of display based on parent size
         let size = this.display.computeSize(parent.clientWidth, parent.clientHeight);
         this.display.setOptions({width: size[0], height: size[1]});
-
-        // Set fontsize based on size of display
-        let fontSize = this.display.computeFontSize(parent.clientWidth, parent.clientHeight);
-        this.display.setOptions({ fontSize });
     }
 
     _handleKeydown(e) {
