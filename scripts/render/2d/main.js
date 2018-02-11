@@ -69,8 +69,9 @@ class Render2D {
      * 6) Add the current room's children to the queue, and set their x, y, and z
      *    coordinates to be the same as the parent (to allow relative positioning to the parent)
      *
-     * @param  {type} direction description
-     * @returns {type}           description
+     * @param  {String} direction The direction the house will face. Determines
+     *                            which directions are possible for rooms to spawn.
+     * @returns {Array}           A three-dimensional array of tiles such that tiles[z][x][y] = tile
      */
     _setUpTiles(direction) {
         // The array of tiles to be returned
