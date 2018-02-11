@@ -11,7 +11,7 @@ class Chambre {
         this.spawnDirection = null;
         this.parent = null;
         this.children = [];
-        this._placed = true; // if this is skipped, set to false. Used in item placement
+        this._placed = true;
     }
 
     addChild(child) {
