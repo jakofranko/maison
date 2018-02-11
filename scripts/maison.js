@@ -155,6 +155,42 @@ class Maison {
 
     }
 
+    /**
+     * adjustZX - Recursively adjust the x value for all rooms on the specified z-level
+     *
+     * @param  {Number}  amount The amount to adjust x
+     * @param  {Number}  z      Z level to adjust
+     * @param  {Chambre} room   The Chambre instance
+     * @returns {undefined}
+     */
+    adjustZX(amount, z, room = this.graph) {
+        if(room.z === z && room.placed)
+            room.x += amount;
+
+        if(room.children)
+            for(let i = 0; i < room.children.length; i++)
+                this.adjustX(amount, room.children[i]);
+
+    }
+
+    /**
+     * adjustZY - Recursively adjust the y value for all rooms on the specified z-level
+     *
+     * @param  {Number}  amount The amount to adjust y
+     * @param  {Number}  z      Z level to adjust
+     * @param  {Chambre} room   The Chambre instance
+     * @returns {undefined}
+     */
+    adjustZY(amount, z, room = this.graph) {
+        if(room.z === z && room.placed)
+            room.y += amount;
+
+        if(room.children)
+            for(let i = 0; i < room.children.length; i++)
+                this.adjustY(amount, room.children[i]);
+
+    }
+
     static getRoomSize(name) {
         const roomSizes = {
             'foyer': [3, 4], // roomName: [min, max]
