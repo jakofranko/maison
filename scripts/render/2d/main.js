@@ -38,6 +38,8 @@ class Render2D {
             offsetWidth = (termWidth - width) / 2,
             tile;
 
+            if(height > termHeight || width > termWidth) debugger;
+
         // Clearn display
         this.display.clear();
 
@@ -91,10 +93,9 @@ class Render2D {
             if(room.parent) {
                 // First, check that adding the new room does not exceed the maximum limits
                 let exceedsMax = (
-                    house[room.z] !== undefined &&
-                    (room.z > this.maxStories ||
-                    room.width + house[room.z].length > this.maxWidth ||
-                    room.height + house[room.z][0].length > this.maxHeight)
+                    room.z > this.maxStories ||
+                    room.x + room.parent.width + room.width > this.maxWidth ||
+                    room.y + room.parent.height + room.height > this.maxHeight
                 );
 
                 // If it does, try to put it on the z-level above, else, skip it
@@ -122,16 +123,20 @@ class Render2D {
                         case 'n':
                             room.y -= room.height - 1; // plus one so the rooms will share a wall
 
-                            if(room.y < 0)
+                            if(room.y < 0) {
                                 house[room.z] = this._shiftTilesSouth(room.height, house[room.z], room.z);
+                                this.maison.adjustZY(room.height, room.z);
+                            }
 
                             existingRoom = this._roomCheck(room.x, room.y, room.width, room.height - 1, house[room.z]);
                             break;
                         case 'w':
                             room.x -= room.width - 1; // plus one so the room.parents will share a wall
 
-                            if(room.x < 0)
+                            if(room.x < 0) {
                                 house[room.z] = this._shiftTilesEast(room.width, house[room.z], room.z);
+                                this.maison.adjustZX(room.width, room.z);
+                            }
 
                             existingRoom = this._roomCheck(room.x, room.y, room.width - 1, room.height, house[room.z]);
                             break;
@@ -179,6 +184,8 @@ class Render2D {
             x = room.x,
             y = room.y,
             z = room.z;
+
+            if(z > 1) debugger;
 
             // Initialize the z-level, if not set already.
             if(!house[z]) {
@@ -302,16 +309,16 @@ class Render2D {
      */
     _shiftTilesSouth(amount, tiles, z) {
         let tile;
+
+        // If tiles doesn't exist, no need to shift
+        if(!tiles)
+            return tiles;
+
+        if(!tiles || !tiles[0]) debugger;
         for(let x = 0; x < tiles.length; x++) {
             for(let y = 0; y < amount; y++) {
                 tile = (z === 0) ? TileRepository.create('grass') : TileRepository.create('air');
-
                 tiles[x].unshift(tile);
-
-                // Adjust room and children y positions by child height
-                if(x === 0) // Ensures we do this once, instead of for every row
-                    this.maison.adjustY(1); // TODO: make sure this also updates the objects in the queue
-
             }
         }
 
@@ -329,6 +336,11 @@ class Render2D {
      */
     _shiftTilesEast(amount, tiles, z) {
         let tile;
+
+        // If tiles doesn't exist, no need to shift
+        if(!tiles)
+            return tiles;
+
         if(!tiles || !tiles[0]) debugger;
         for(let x = 0; x < amount; x++) {
             tiles.unshift(new Array(tiles[0].length));
@@ -338,9 +350,6 @@ class Render2D {
                 // Always use index of 0 since we're adding the array to the beginning
                 tiles[0][y] = tile;
             }
-
-            // Adjust room and children x positions by child width
-            this.maison.adjustX(1);
         }
 
         return tiles;
