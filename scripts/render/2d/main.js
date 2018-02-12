@@ -227,7 +227,7 @@ class Render2D {
         house = this._spaceFill(house);
 
         // Place doors
-        // house = this._placeDoors(house);
+        house = this._placeDoors(house);
 
         // Place stairs
         // house = this._placeStairs(house);
@@ -377,46 +377,61 @@ class Render2D {
     }
 
     _placeDoors(tiles) {
-        // TODO: copied from happening per room. Should be refactored to place
-        // doors based on the graph after all rooms have been placed.
-        // Determine where to place the door
-        var roomXY = this._listXY(room.x, room.y, room.width, room.height);
-        var childXY = this._listXY(child.x, child.y, child.width, child.height);
-        var commonXY = [];
-        for (var l = 0; l < roomXY.length; l++)
-            if(childXY.indexOf(roomXY[l]) > -1)
-                commonXY.push(roomXY[l]);
+        let rooms = [this.maison.graph];
+        let room, roomXY, childXY, commonXY, lowestX, highestX, lowestY, highestY, doorXY;
+        function minMaxXY(m, c, prev, curr) {
+            return Math[m](prev, Number(curr.split(",")[c]));
+        }
+        const minX = minMaxXY.bind(this, 'min', 0);
+        const maxX = minMaxXY.bind(this, 'max', 0);
+        const minY = minMaxXY.bind(this, 'min', 1);
+        const maxY = minMaxXY.bind(this, 'max', 1);
 
-        // Make sure door isn't placed in a corner by eliminating the least and greatest x or y coordinates, depending on spawn direction
-        if(dir == 'n' || dir == 's') {
-            var lowestX = commonXY.reduce(function(prev, curr) {
-                return Math.min(prev, curr.split(",")[0]);
-            }, commonXY[0].split(",")[0]);
-            var highestX = commonXY.reduce(function(prev, curr) {
-                return Math.max(prev, curr.split(",")[0]);
-            }, commonXY[0].split(",")[0]);
+        while(rooms.length) {
+            room = rooms.shift();
+            roomXY = this._listXY(room.x, room.y, room.width, room.height);
+            commonXY = [];
 
-            // Remove the extreme x tiles from the list
-            for (var m = 0; m < commonXY.length; m++) {
-                if(commonXY[m].split(",")[0] == lowestX || commonXY[m].split(",")[0] == highestX)
-                    commonXY.splice(m, 1);
-            }
-        } else {
-            var lowestY = commonXY.reduce(function(prev, curr) {
-                return Math.min(prev, curr.split(",")[1]);
-            }, commonXY[0].split(",")[1]);
-            var highestY = commonXY.reduce(function(prev, curr) {
-                return Math.max(prev, curr.split(",")[1]);
-            }, commonXY[0].split(",")[1]);
-            // Remove the extreme y tiles from the list
-            for (var n = 0; n < commonXY.length; n++) {
-                if(commonXY[n].split(",")[1] == lowestY || commonXY[n].split(",")[1] == highestY)
-                    commonXY.splice(n, 1);
+            if(room.children.length) {
+                room.children.forEach(child => {
+                    if(!child.placed || room.z > child.z || room.z < child.z) return;
+
+                    childXY = this._listXY(child.x, child.y, child.width, child.height);
+                    for(let i = 0; i < roomXY.length; i++) {
+                        if(childXY.indexOf(roomXY[i]) > -1)
+                            commonXY.push(roomXY[i]);
+                    }
+
+                    // Make sure door isn't placed in a corner by eliminating the least and greatest x or y coordinates, depending on spawn direction
+                    if(child.spawnDirection == 'n' || child.spawnDirection == 's') {
+                        lowestX = commonXY.reduce(minX, commonXY[0].split(",")[0]);
+                        highestX = commonXY.reduce(maxX, commonXY[0].split(",")[0]);
+
+                        // Remove the extreme x tiles from the list
+                        for(let i = 0; i < commonXY.length; i++) {
+                            if(commonXY[i].split(",")[0] == lowestX || commonXY[i].split(",")[0] == highestX)
+                                commonXY.splice(i, 1);
+                        }
+                    } else {
+                        lowestY = commonXY.reduce(minY, commonXY[0].split(",")[1]);
+                        highestY = commonXY.reduce(maxY, commonXY[0].split(",")[1]);
+
+                        // Remove the extreme y tiles from the list
+                        for (let i = 0; i < commonXY.length; i++) {
+                            if(commonXY[i].split(",")[1] == lowestY || commonXY[i].split(",")[1] == highestY)
+                                commonXY.splice(i, 1);
+                        }
+                    }
+
+                    doorXY = commonXY.random().split(",");
+                    tiles[room.z][doorXY[0]][doorXY[1]] = TileRepository.create("door");
+
+                    rooms.push(child);
+                });
             }
         }
 
-        var doorXY = commonXY.random().split(",");
-        house[z][doorXY[0]][doorXY[1]] = TileRepository.create("door");
+        return tiles;
     }
 
     _placeStairs(tiles) {
