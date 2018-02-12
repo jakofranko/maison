@@ -185,8 +185,6 @@ class Render2D {
             y = room.y,
             z = room.z;
 
-            if(z > 1) debugger;
-
             // Initialize the z-level, if not set already.
             if(!house[z]) {
                 if(z === 0)
