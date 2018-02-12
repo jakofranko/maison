@@ -169,7 +169,7 @@ class Maison {
 
         if(room.children)
             for(let i = 0; i < room.children.length; i++)
-                this.adjustX(amount, room.children[i]);
+                this.adjustZX(amount, z, room.children[i]);
 
     }
 
@@ -187,7 +187,7 @@ class Maison {
 
         if(room.children)
             for(let i = 0; i < room.children.length; i++)
-                this.adjustY(amount, room.children[i]);
+                this.adjustZY(amount, z, room.children[i]);
 
     }
 
