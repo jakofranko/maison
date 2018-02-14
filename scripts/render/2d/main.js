@@ -1,6 +1,5 @@
 class Render2D {
     constructor(maison, options = {maxWidth: 50, maxHeight: 50, maxStories: 3}) {
-        // Display width and height is in characters, so divide the width and height by the fontSize
         this.maison = maison;
         this.container = options['container'] || document.getElementById("display");
         this.display = new ROT.Display();
@@ -8,12 +7,13 @@ class Render2D {
         this.container.appendChild(this.display.getContainer());
         this._resizeTerminal(this.display);
 
-        // Apply options to this instance, and make sure max sizes don't exceed
-        // the display width and height. Also, make room for a status bar.
+        // Make sure max sizes don't exceed the display width and height, make room for a status bar.
         let termWidth = this.display.getOptions().width;
         let termHeight = this.display.getOptions().height;
         options.maxWidth = options.maxWidth <= termWidth ? options.maxWidth : termWidth;
         options.maxHeight = options.maxHeight < termHeight ? options.maxHeight : termHeight - 1;
+
+        // Assign option properties to this instance
         Object.assign(this, options);
 
         try {
@@ -23,8 +23,8 @@ class Render2D {
             throw e;
         }
 
+        // Used to determine which z-level to render to the 'console'
         this.renderZ = 0;
-
 
         window.addEventListener('resize', this._resizeTerminal.bind(this, this.display));
         window.addEventListener('keydown', this._handleKeydown.bind(this));
@@ -38,9 +38,9 @@ class Render2D {
             offsetWidth = (termWidth - width) / 2,
             tile;
 
-            if(height > termHeight || width > termWidth) debugger;
+        if(height > termHeight || width > termWidth) debugger;
 
-        // Clearn display
+        // Clean display
         this.display.clear();
 
         for (var x  = 0; x < width; x ++) {
@@ -165,8 +165,6 @@ class Render2D {
                     }
                 }
 
-                // TODO: handle what happens when we can't place the room on a
-                // higher z-level because it exceeds the limits. This logic shouldn't be duplicated here and at the top of the loop? (exceedsMax)
                 // If a place could not be found, increment the z level, and
                 // put it in the back of the queue.
                 if(room.spawnDirection === undefined || room.spawnDirection === null) {
@@ -392,43 +390,41 @@ class Render2D {
             roomXY = this._listXY(room.x, room.y, room.width, room.height);
             commonXY = [];
 
-            if(room.children.length) {
-                room.children.forEach(child => {
-                    if(!child.placed || room.z > child.z || room.z < child.z) return;
+            room.children.forEach(child => {
+                if(!child.placed || room.z > child.z || room.z < child.z) return;
 
-                    childXY = this._listXY(child.x, child.y, child.width, child.height);
-                    for(let i = 0; i < roomXY.length; i++) {
-                        if(childXY.indexOf(roomXY[i]) > -1)
-                            commonXY.push(roomXY[i]);
+                childXY = this._listXY(child.x, child.y, child.width, child.height);
+                for(let i = 0; i < roomXY.length; i++) {
+                    if(childXY.indexOf(roomXY[i]) > -1)
+                        commonXY.push(roomXY[i]);
+                }
+
+                // Make sure door isn't placed in a corner by eliminating the least and greatest x or y coordinates, depending on spawn direction
+                if(child.spawnDirection == 'n' || child.spawnDirection == 's') {
+                    lowestX = commonXY.reduce(minX, commonXY[0].split(",")[0]);
+                    highestX = commonXY.reduce(maxX, commonXY[0].split(",")[0]);
+
+                    // Remove the extreme x tiles from the list
+                    for(let i = 0; i < commonXY.length; i++) {
+                        if(commonXY[i].split(",")[0] == lowestX || commonXY[i].split(",")[0] == highestX)
+                            commonXY.splice(i, 1);
                     }
+                } else {
+                    lowestY = commonXY.reduce(minY, commonXY[0].split(",")[1]);
+                    highestY = commonXY.reduce(maxY, commonXY[0].split(",")[1]);
 
-                    // Make sure door isn't placed in a corner by eliminating the least and greatest x or y coordinates, depending on spawn direction
-                    if(child.spawnDirection == 'n' || child.spawnDirection == 's') {
-                        lowestX = commonXY.reduce(minX, commonXY[0].split(",")[0]);
-                        highestX = commonXY.reduce(maxX, commonXY[0].split(",")[0]);
-
-                        // Remove the extreme x tiles from the list
-                        for(let i = 0; i < commonXY.length; i++) {
-                            if(commonXY[i].split(",")[0] == lowestX || commonXY[i].split(",")[0] == highestX)
-                                commonXY.splice(i, 1);
-                        }
-                    } else {
-                        lowestY = commonXY.reduce(minY, commonXY[0].split(",")[1]);
-                        highestY = commonXY.reduce(maxY, commonXY[0].split(",")[1]);
-
-                        // Remove the extreme y tiles from the list
-                        for (let i = 0; i < commonXY.length; i++) {
-                            if(commonXY[i].split(",")[1] == lowestY || commonXY[i].split(",")[1] == highestY)
-                                commonXY.splice(i, 1);
-                        }
+                    // Remove the extreme y tiles from the list
+                    for (let i = 0; i < commonXY.length; i++) {
+                        if(commonXY[i].split(",")[1] == lowestY || commonXY[i].split(",")[1] == highestY)
+                            commonXY.splice(i, 1);
                     }
+                }
 
-                    doorXY = commonXY.random().split(",");
-                    tiles[room.z][doorXY[0]][doorXY[1]] = TileRepository.create("door");
+                doorXY = commonXY.random().split(",");
+                tiles[room.z][doorXY[0]][doorXY[1]] = TileRepository.create("door");
 
-                    rooms.push(child);
-                });
-            }
+                rooms.push(child);
+            });
         }
 
         return tiles;
