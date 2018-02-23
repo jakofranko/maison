@@ -388,9 +388,9 @@ class Render2D {
         while(rooms.length) {
             room = rooms.shift();
             roomXY = this._listXY(room.x, room.y, room.width, room.height);
-            commonXY = [];
 
             room.children.forEach(child => {
+                commonXY = []; // Remove any previous coords
                 if(!child.placed || room.z > child.z || room.z < child.z) return;
 
                 childXY = this._listXY(child.x, child.y, child.width, child.height);
