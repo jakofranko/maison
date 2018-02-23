@@ -390,8 +390,16 @@ class Render2D {
             roomXY = this._listXY(room.x, room.y, room.width, room.height);
 
             room.children.forEach(child => {
+                if(!child.placed) return;
+
+                // Don't try to place doors between rooms on different
+                // z-levels, but make sure they are added to the queue
+                if(room.z > child.z || room.z < child.z) {
+                    rooms.push(child);
+                    return;
+                }
+
                 commonXY = []; // Remove any previous coords
-                if(!child.placed || room.z > child.z || room.z < child.z) return;
 
                 childXY = this._listXY(child.x, child.y, child.width, child.height);
                 for(let i = 0; i < roomXY.length; i++) {
