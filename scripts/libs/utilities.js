@@ -2,7 +2,7 @@ Math.getRandomInRange = function(min, max) {
     return Math.floor(ROT.RNG.getUniform() * (max - min + 1)) + min;
 };
 
-consoleLogGrid = function(grid, field, items, z, hlX, hlY) {
+const consoleLogGrid = function(grid, field, items, z, hlX, hlY) {
     var string = "";
     for (var y = 0; y < grid[0].length; y++) {
         for (var x = 0; x < grid.length; x++) {
@@ -22,5 +22,6 @@ consoleLogGrid = function(grid, field, items, z, hlX, hlY) {
         }
         string += "\n";
     }
+    
     console.log(string, "color: red; background: black", "");
 };
