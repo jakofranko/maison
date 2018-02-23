@@ -11,7 +11,8 @@
         "Chambre": true,
         "ROT": true,
         "TileRepository": true,
-        "d3": true
+        "d3": true,
+        "consoleLogGrid": true
     },
     "extends": "eslint:recommended",
     "rules": {
