@@ -228,7 +228,7 @@ class Render2D {
         house = this._placeDoors(house);
 
         // Place stairs
-        // house = this._placeStairs(house);
+        house = this._placeStairs(house);
 
         // Now that the locations of all rooms have been set and adjusted, place items in each room
         // this._placeItems(this.graph);
@@ -441,19 +441,19 @@ class Render2D {
     _placeStairs(tiles) {
         // TODO: should be refactored, was just cut from above code
         // If the house is more than one z level, place stairs where there is a valid floor tile on both z levels
-        for (var z = 0; z < house.length; z++) {
-            if(!house[z + 1])
+        for (var z = 0; z < tiles.length; z++) {
+            if(!tiles[z + 1])
                 break;
 
-            var floorTiles = this._getFloorTiles(house[z]);
+            var floorTiles = this._getFloorTiles(tiles[z]);
             var randomFloor = false;
-            for(var o = 0; o < floorTiles.length; o++) {
-                var f = floorTiles[o].split(",");
-                if(!house[z + 1][f[0]])
+            for(let i = 0; i < floorTiles.length; i++) {
+                var f = floorTiles[i].split(",");
+                if(!tiles[z + 1][f[0]])
                     debugger;
-                if(!house[z + 1][f[0]][f[1]])
+                if(!tiles[z + 1][f[0]][f[1]])
                     continue;
-                if(house[z + 1][f[0]][f[1]].getName() == 'floor') {
+                if(tiles[z + 1][f[0]][f[1]].getName() == 'floor') {
                     randomFloor = {
                         x: f[0],
                         y: f[1]
@@ -462,10 +462,12 @@ class Render2D {
                 }
             }
             if(randomFloor !== false) {
-                house[z][randomFloor.x][randomFloor.y] = TileRepository.create('stairsUp');
-                house[z + 1][randomFloor.x][randomFloor.y] = TileRepository.create('stairsDown');
+                tiles[z][randomFloor.x][randomFloor.y] = TileRepository.create('stairsUp');
+                tiles[z + 1][randomFloor.x][randomFloor.y] = TileRepository.create('stairsDown');
             }
         }
+
+        return tiles;
     }
 
     /**
@@ -543,5 +545,28 @@ class Render2D {
             }
         }
         return list;
+    }
+
+
+    /**
+     * _getFloorTiles - Loop through a two-dimensional array of tiles and return
+     * all the tiles that have the name 'floor'
+     *
+     * @param  {type} tiles description
+     * @returns {type}       description
+     */
+    _getFloorTiles(tiles) {
+        let floorTiles = [];
+        for(let x = 0; x < tiles.length; x++) {
+            if(!tiles[x])
+                continue;
+            for(let y = 0; y < tiles[x].length; y++) {
+                if(tiles[x][y] && tiles[x][y].getName() == 'floor')
+                    floorTiles.push(x + "," + y);
+            }
+
+        }
+
+        return floorTiles;
     }
 }
