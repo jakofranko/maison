@@ -438,8 +438,15 @@ class Render2D {
         return tiles;
     }
 
+
+    /**
+     * _placeStairs - Intelligently places stairs so that all z-levels are accessible
+     *
+     * @TODO Refactor to places stairs for all rooms that have children on higher z-levels
+     * @param  {Array} tiles Three-dimensional array of tiles such that tiles[z][x][y] = tile.
+     * @returns {Array}      Altered tiles.
+     */
     _placeStairs(tiles) {
-        // TODO: should be refactored, was just cut from above code
         // If the house is more than one z level, place stairs where there is a valid floor tile on both z levels
         for (var z = 0; z < tiles.length; z++) {
             if(!tiles[z + 1])
