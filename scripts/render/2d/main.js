@@ -89,7 +89,6 @@ class Render2D {
             let possibleDirections = this.maison.possibleDirections[direction].randomize();
             let existingRoom = false;
 
-
             if(room.parent) {
                 // First, check that adding the new room does not exceed the maximum limits
                 let exceedsMax = (
@@ -359,6 +358,7 @@ class Render2D {
     _spaceFill(grid) {
         for (var z = 0; z < grid.length; z++) {
             // If there are varying heights, find the highest column
+            if(!grid[z].reduce) debugger;
             var height = grid[z].reduce(function(prev, curr) {
                 if(typeof prev === 'object') prev = prev.length;
                 if(typeof curr === 'object') curr = curr.length;
@@ -452,31 +452,43 @@ class Render2D {
      * @returns {Array}      Altered tiles.
      */
     _placeStairs(tiles) {
-        // If the house is more than one z level, place stairs where there is a valid floor tile on both z levels
-        for (var z = 0; z < tiles.length; z++) {
-            if(!tiles[z + 1])
-                break;
+        debugger;
+        let queue = [this.maison.graph];
+        let room, roomXY, childXY, commonXY, parts, x, y;
 
-            var floorTiles = this._getFloorTiles(tiles[z]);
-            var randomFloor = false;
-            for(let i = 0; i < floorTiles.length; i++) {
-                var f = floorTiles[i].split(",");
-                if(!tiles[z + 1][f[0]])
-                    debugger;
-                if(!tiles[z + 1][f[0]][f[1]])
-                    continue;
-                if(tiles[z + 1][f[0]][f[1]].getName() == 'floor') {
-                    randomFloor = {
-                        x: f[0],
-                        y: f[1]
-                    };
-                    break;
+        while(queue.length) {
+            room = queue.shift();
+            roomXY = this._listXY(room.x, room.y, room.width, room.height);
+            room.children.forEach(child => {
+                commonXY = [];
+
+                if(!child.placed) return;
+
+                if(child.z > room.z) {
+                    childXY = this._listXY(child.x, child.y, child.width, child.height);
+                    childXY.forEach(coord => {
+                        if(roomXY.indexOf(coord) > -1)
+                            commonXY.push(coord);
+                    });
+
+                    commonXY.some(coord => {
+                        parts = coord.split(",");
+                        x = parts[0];
+                        y = parts[1];
+
+                        if(!tiles[room.z + 1]) debugger;
+                        if(tiles[room.z][x][y].getName() == 'floor' && tiles[room.z + 1][x][y].getName() == 'floor') {
+                            tiles[room.z][x][y] = TileRepository.create('stairsUp');
+                            tiles[room.z + 1][x][y] = TileRepository.create('stairsDown');
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    });
                 }
-            }
-            if(randomFloor !== false) {
-                tiles[z][randomFloor.x][randomFloor.y] = TileRepository.create('stairsUp');
-                tiles[z + 1][randomFloor.x][randomFloor.y] = TileRepository.create('stairsDown');
-            }
+
+                queue.push(child);
+            });
         }
 
         return tiles;
