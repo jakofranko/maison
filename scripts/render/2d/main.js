@@ -124,7 +124,7 @@ class Render2D {
                             room.y -= room.height - 1; // plus one so the rooms will share a wall
 
                             if(room.y < 0) {
-                                house[room.z] = this._shiftTilesSouth(room.height, house[room.z], room.z);
+                                house = this._shiftTilesSouth(room.height, house);
                                 this.maison.adjustZY(room.height, room.z);
                             }
 
@@ -134,7 +134,7 @@ class Render2D {
                             room.x -= room.width - 1; // plus one so the room.parents will share a wall
 
                             if(room.x < 0) {
-                                house[room.z] = this._shiftTilesEast(room.width, house[room.z], room.z);
+                                house = this._shiftTilesEast(room.width, house);
                                 this.maison.adjustZX(room.width, room.z);
                             }
 
@@ -303,18 +303,20 @@ class Render2D {
      * @param  {Array} tiles  Array of tile arrays to be shifted
      * @returns {Array}
      */
-    _shiftTilesSouth(amount, tiles, z) {
+    _shiftTilesSouth(amount, tiles) {
         let tile;
 
         // If tiles doesn't exist, no need to shift
         if(!tiles)
             return tiles;
 
-        if(!tiles || !tiles[0]) debugger;
-        for(let x = 0; x < tiles.length; x++) {
-            for(let y = 0; y < amount; y++) {
-                tile = (z === 0) ? TileRepository.create('grass') : TileRepository.create('air');
-                tiles[x].unshift(tile);
+        for(let z = 0; z < tiles.length; z++) {
+            if(!tiles[z][0]) debugger;
+            for(let x = 0; x < tiles[z].length; x++) {
+                for(let y = 0; y < amount; y++) {
+                    tile = (z === 0) ? TileRepository.create('grass') : TileRepository.create('air');
+                    tiles[z][x].unshift(tile);
+                }
             }
         }
 
@@ -330,21 +332,24 @@ class Render2D {
      * @param  {Array} tiles  Array of tile arrays to be shifted
      * @returns {Array}
      */
-    _shiftTilesEast(amount, tiles, z) {
+    _shiftTilesEast(amount, tiles) {
         let tile;
 
         // If tiles doesn't exist, no need to shift
         if(!tiles)
             return tiles;
 
-        if(!tiles || !tiles[0]) debugger;
-        for(let x = 0; x < amount; x++) {
-            tiles.unshift(new Array(tiles[0].length));
 
-            for(let y = 0; y < tiles[0].length; y++) {
-                tile = (z === 0) ? TileRepository.create('grass') : TileRepository.create('air');
-                // Always use index of 0 since we're adding the array to the beginning
-                tiles[0][y] = tile;
+        for(let z = 0; z < tiles.length; z++) {
+            if(!tiles[z][0]) debugger;
+            for(let x = 0; x < amount; x++) {
+                tiles[z].unshift(new Array(tiles[z][0].length));
+
+                for(let y = 0; y < tiles[z][0].length; y++) {
+                    tile = (z === 0) ? TileRepository.create('grass') : TileRepository.create('air');
+                    // Always use index of 0 since we're adding the array to the beginning
+                    tiles[z][0][y] = tile;
+                }
             }
         }
 
