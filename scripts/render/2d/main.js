@@ -71,9 +71,9 @@ class Render2D {
      * 6) Add the current room's children to the queue, and set their x, y, and z
      *    coordinates to be the same as the parent (to allow relative positioning to the parent)
      *
-     * @param  {String} direction The direction the house will face. Determines
-     *                            which directions are possible for rooms to spawn.
-     * @returns {Array}           A three-dimensional array of tiles such that tiles[z][x][y] = tile
+     * @param   {String} direction The direction the house will face. Determines
+     *                             which directions are possible for rooms to spawn.
+     * @returns {Array}            A three-dimensional array of tiles such that tiles[z][x][y] = tile
      */
     _setUpTiles(direction) {
         // The array of tiles to be returned
@@ -109,6 +109,7 @@ class Render2D {
                     continue;
                 }
 
+                // TODO: support rooms being placed directly above their parent
                 // Find a good spawn direction, and shift tiles accordingly
                 while(possibleDirections.length) {
                     let currentDirection = possibleDirections.pop();
@@ -240,6 +241,14 @@ class Render2D {
         return house;
     }
 
+
+    /**
+     * _renderRoom - Given an instance of a Chambre, creates an array of room tiles.
+     *
+     * @param   {Chambre} room
+     * @param   {type}    direction If the room is the 'foyer', this is used to place the front door.
+     * @returns {Array}             Two-dimensional array, such that tiles[x][y] == tile
+     */
     _renderRoom(room, direction) {
         var w = room.width;
         var h = room.height;
@@ -298,8 +307,8 @@ class Render2D {
      * room height, and then adjusts every room in the maison instance accordingly.
      * Might need to refactor this to do every z-level, instead of working on only 1.
      *
-     * @param  {Number} amount Number of rows to shift onto the beginning of the array
-     * @param  {Array} tiles  Array of tile arrays to be shifted
+     * @param   {Number} amount Number of rows to shift onto the beginning of the array
+     * @param   {Array}  tiles  Array of tile arrays to be shifted
      * @returns {Array}
      */
     _shiftTilesSouth(amount, tiles) {
@@ -327,8 +336,8 @@ class Render2D {
      * on room width, and then adjusts every room in the maison instance accordingly.
      * Might need to refactor this to do every z-level, instead of working on only 1.
      *
-     * @param  {Number} amount Number of columns to shift onto the beginning of the array
-     * @param  {Array} tiles  Array of tile arrays to be shifted
+     * @param   {Number} amount Number of columns to shift onto the beginning of the array
+     * @param   {Array}  tiles  Array of tile arrays to be shifted
      * @returns {Array}
      */
     _shiftTilesEast(amount, tiles) {
@@ -337,7 +346,6 @@ class Render2D {
         // If tiles doesn't exist, no need to shift
         if(!tiles)
             return tiles;
-
 
         for(let z = 0; z < tiles.length; z++) {
             if(!tiles[z][0]) debugger;
@@ -448,8 +456,8 @@ class Render2D {
      * _placeStairs - Intelligently places stairs so that all z-levels are accessible
      *
      * @TODO Refactor to places stairs for all rooms that have children on higher z-levels
-     * @param  {Array} tiles Three-dimensional array of tiles such that tiles[z][x][y] = tile.
-     * @returns {Array}      Altered tiles.
+     * @param   {Array} tiles Three-dimensional array of tiles such that tiles[z][x][y] = tile.
+     * @returns {Array}       Altered tiles.
      */
     _placeStairs(tiles) {
         debugger;
@@ -497,11 +505,11 @@ class Render2D {
     /**
      * roomCheck - Scan given tiles for any tiles that are not 'air' or 'grass'
      *
-     * @param  {Number} startX
-     * @param  {Number} startY
-     * @param  {Number} width
-     * @param  {Number} height
-     * @param  {Array} tiles An array of arrays of tiles, such that tiles[x][y] == tile
+     * @param   {Number} startX
+     * @param   {Number} startY
+     * @param   {Number} width
+     * @param   {Number} height
+     * @param   {Array}  tiles An array of arrays of tiles, such that tiles[x][y] == tile
      * @returns {Boolean}
      */
     _roomCheck(startX, startY, width, height, tiles) {
@@ -555,11 +563,11 @@ class Render2D {
      * _listXY - Utility for creating a list of x,y coordinates given a starting
      *           X, a starting Y, a width and a height.
      *
-     * @param  {Number} startX Starting X coordinate
-     * @param  {Number} startY Starting Y coordinate
-     * @param  {Number} width  How wide on the grid to go
-     * @param  {Number} height How deep on the grid to go
-     * @returns {Array}        An array of strings with the format "x,y"
+     * @param   {Number} startX Starting X coordinate
+     * @param   {Number} startY Starting Y coordinate
+     * @param   {Number} width  How wide on the grid to go
+     * @param   {Number} height How deep on the grid to go
+     * @returns {Array}         An array of strings with the format "x,y"
      */
     _listXY(startX, startY, width, height) {
         var list = [];
@@ -576,8 +584,8 @@ class Render2D {
      * _getFloorTiles - Loop through a two-dimensional array of tiles and return
      * all the tiles that have the name 'floor'
      *
-     * @param  {type} tiles description
-     * @returns {type}       description
+     * @param   {Array} tiles  An array of arrays of tiles, such that tiles[x][y] == tile
+     * @returns {Array}        An array of string coordinates "x,y" of floor tile locations
      */
     _getFloorTiles(tiles) {
         let floorTiles = [];
