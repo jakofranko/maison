@@ -207,3 +207,5 @@ class Maison {
         return roomSizes[name];
     }
 }
+
+export { Maison };

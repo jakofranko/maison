@@ -577,3 +577,5 @@ class Render2D {
         return floorTiles;
     }
 }
+
+export { Render2D };

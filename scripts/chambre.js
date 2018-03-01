@@ -39,3 +39,5 @@ class Chambre {
         this.children.forEach(child => child.placed = isPlaced);
     }
 }
+
+export { Chambre };

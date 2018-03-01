@@ -22,6 +22,8 @@ const consoleLogGrid = function(grid, field, items, z, hlX, hlY) {
         }
         string += "\n";
     }
-    
+
     console.log(string, "color: red; background: black", "");
 };
+
+export { consoleLogGrid };
