@@ -174,6 +174,7 @@ class Render2D {
                         // to make sure adding the room will not exceed the max.
                         // If it will, break out and skip this room.
                         if(currentDirection == "up" && this._exceedsMax(room)) {
+                            room.placed = false;
                             break;
                         } else {
                             room.x = room.parent.x;
