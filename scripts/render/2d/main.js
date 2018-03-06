@@ -88,14 +88,12 @@ class Render2D {
             let x, y, z;
             let possibleDirections = this.maison.possibleDirections[direction].randomize();
             let existingRoom = false;
+            let currentDirection, exceedsMax, tryAbove;
 
             if(room.parent) {
                 // First, check that adding the new room does not exceed the maximum limits
-                let exceedsMax = (
-                    room.z > this.maxStories ||
-                    room.x + room.parent.width + room.width > this.maxWidth ||
-                    room.y + room.parent.height + room.height > this.maxHeight
-                );
+                tryAbove = room.z > room.parent.z;
+                exceedsMax = this._exceedsMax(room, tryAbove);
 
                 // If it does, try to put it on the z-level above, else, skip it
                 if(exceedsMax && room.z + 1 <= this.maxStories) {
@@ -109,10 +107,13 @@ class Render2D {
                     continue;
                 }
 
+                if(tryAbove)
+                    possibleDirections.push("up");
+
                 // TODO: support rooms being placed directly above their parent
                 // Find a good spawn direction, and shift tiles accordingly
                 while(possibleDirections.length) {
-                    let currentDirection = possibleDirections.pop();
+                    currentDirection = possibleDirections.pop();
 
                     // Because a room could be tacked on to the north or west, x,y coordinate 0,0 can
                     // change. Rooms to the south and east of their ancestor are not a problem; just
@@ -124,8 +125,13 @@ class Render2D {
                             room.y -= room.height - 1; // plus one so the rooms will share a wall
 
                             if(room.y < 0) {
-                                house = this._shiftTilesSouth(room.height, house);
-                                this.maison.adjustZY(room.height, room.z);
+                                if(this._exceedsTotalHeight(room.height, house)){
+                                    existingRoom = true;
+                                    break;
+                                } else {
+                                    house = this._shiftTilesSouth(room.height, house);
+                                    this.maison.adjustY(room.height);
+                                }
                             }
 
                             existingRoom = this._roomCheck(room.x, room.y, room.width, room.height - 1, house[room.z]);
@@ -134,8 +140,13 @@ class Render2D {
                             room.x -= room.width - 1; // plus one so the room.parents will share a wall
 
                             if(room.x < 0) {
-                                house = this._shiftTilesEast(room.width, house);
-                                this.maison.adjustZX(room.width, room.z);
+                                if(this._exceedsTotalWidth(room.width, house)) {
+                                    existingRoom = true;
+                                    break;
+                                } else {
+                                    house = this._shiftTilesEast(room.width, house);
+                                    this.maison.adjustX(room.width);
+                                }
                             }
 
                             existingRoom = this._roomCheck(room.x, room.y, room.width - 1, room.height, house[room.z]);
@@ -150,15 +161,26 @@ class Render2D {
 
                             existingRoom = this._roomCheck(room.x, room.y + 1, room.width, room.height, house[room.z]);
                             break;
+                        case 'up':
+                            existingRoom = this._roomCheck(room.x, room.y, room.width, room.height, house[room.z]);
+                            break;
                         default:
                             throw new Error("There are no more possible directions. This should not be possible...heh heh.");
                     }
 
                     // A room was found, so try another direction
                     if(existingRoom === true) {
-                        room.x = room.parent.x;
-                        room.y = room.parent.y;
-                        continue;
+                        // No longer trying to place room above, so re-check
+                        // to make sure adding the room will not exceed the max.
+                        // If it will, break out and skip this room.
+                        if(currentDirection == "up" && this._exceedsMax(room)) {
+                            break;
+                        } else {
+                            room.x = room.parent.x;
+                            room.y = room.parent.y;
+
+                            continue;
+                        }
                     } else {
                         room.spawnDirection = currentDirection;
                         break;
@@ -166,8 +188,12 @@ class Render2D {
                 }
 
                 // If a place could not be found, increment the z level, and
-                // put it in the back of the queue.
+                // put it in the back of the queue. If attempting to place the
+                // room directly above its parent, it has failed so skip room.
                 if(room.spawnDirection === undefined || room.spawnDirection === null) {
+                    if(currentDirection == 'up')
+                        continue;
+
                     room.x = room.parent.x;
                     room.y = room.parent.y;
                     room.z++;
@@ -219,6 +245,7 @@ class Render2D {
                     queue.push(room.children[k]);
                 }
             }
+            consoleLogGrid(house[room.z], '_char');
         }
 
         // One last time, fill out any missing tiles with air or grass
@@ -445,6 +472,7 @@ class Render2D {
                 tiles[room.z][doorXY[0]][doorXY[1]] = TileRepository.create("door");
 
                 rooms.push(child);
+                // consoleLogGrid(tiles[room.z], '_char');
             });
         }
 
@@ -460,7 +488,6 @@ class Render2D {
      * @returns {Array}       Altered tiles.
      */
     _placeStairs(tiles) {
-        debugger;
         let queue = [this.maison.graph];
         let room, roomXY, childXY, commonXY, parts, x, y;
 
@@ -601,5 +628,36 @@ class Render2D {
 
         return floorTiles;
     }
-}
 
+    _exceedsMax(room, onlyAbove = false) {
+        if(onlyAbove) {
+            return (
+                room.z > this.maxStories ||
+                room.x + room.width > this.maxWidth ||
+                room.y + room.height > this.maxHeight
+            )
+        } else {
+            return (
+                room.z > this.maxStories ||
+                room.x + room.parent.width + room.width > this.maxWidth ||
+                room.y + room.parent.height + room.height > this.maxHeight
+            );
+        }
+    }
+
+    _exceedsTotalWidth(width, tiles) {
+        for(let z = 0; z < tiles.length; z++) {
+            if(width + tiles[z].length > this.maxWidth)
+                return true;
+        }
+    }
+
+    _exceedsTotalHeight(height, tiles) {
+        for(let z = 0; z < tiles.length; z++) {
+            for(let x = 0; x < tiles[z].length; x++) {
+                if(height + tiles[z][x].length > this.maxHeight)
+                    return true;
+            }
+        }
+    }
+}
