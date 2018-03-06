@@ -49,5 +49,3 @@ class Graph {
             .text(d => d.data.name);
     }
 }
-
-export { Graph };

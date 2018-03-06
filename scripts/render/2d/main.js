@@ -603,4 +603,3 @@ class Render2D {
     }
 }
 
-export { Render2D };
