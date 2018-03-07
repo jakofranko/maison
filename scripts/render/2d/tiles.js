@@ -47,6 +47,14 @@ TileRepository.define('stairsDown', {
     blocksLight: false,
     description: 'A staircase leading downwards'
 });
+TileRepository.define('stairsUpDown', {
+    name: 'stairsUpDown',
+    character: 'X',
+    foreground: 'white',
+    walkable: true,
+    blocksLight: false,
+    description: 'A staircase leading upwards and downwards'
+});
 TileRepository.define('water', {
     name: 'water',
     character: '~',
