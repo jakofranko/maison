@@ -513,9 +513,17 @@ class Render2D {
                         y = parts[1];
 
                         if(!tiles[room.z + 1]) debugger;
-                        if(tiles[room.z][x][y].getName() == 'floor' && tiles[room.z + 1][x][y].getName() == 'floor') {
-                            tiles[room.z][x][y] = TileRepository.create('stairsUp');
-                            tiles[room.z + 1][x][y] = TileRepository.create('stairsDown');
+                        if(tiles[room.z][x][y].isWalkable() && tiles[room.z + 1][x][y].isWalkable()) {
+                            if(tiles[room.z][x][y].getName() == 'stairsUp' || tiles[room.z][x][y].getName() == 'stairsDown')
+                                tiles[room.z][x][y] = TileRepository.create('stairsUpDown');
+                            else
+                                tiles[room.z][x][y] = TileRepository.create('stairsUp');
+
+                            if(tiles[room.z + 1][x][y].getName() == 'stairsUp' || tiles[room.z + 1][x][y].getName() == 'stairsDown')
+                                tiles[room.z + 1][x][y] = TileRepository.create('stairsUpDown');
+                            else
+                                tiles[room.z + 1][x][y] = TileRepository.create('stairsDown');
+
                             return true;
                         } else {
                             return false;
