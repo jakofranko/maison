@@ -191,9 +191,18 @@ class Render2D {
                 // If a place could not be found, increment the z level, and
                 // put it in the back of the queue. If attempting to place the
                 // room directly above its parent, it has failed so skip room.
+                // If the room will be more than 1 z-level above the parent,
+                // skip, since placing stairs will not be possible.
                 if(room.spawnDirection === undefined || room.spawnDirection === null) {
-                    if(currentDirection == 'up')
+                    if(currentDirection == 'up') {
+                        room.placed = false;
                         continue;
+                    }
+
+                    if(room.z > room.parent.z) {
+                        room.placed = false;
+                        continue;
+                    }
 
                     room.x = room.parent.x;
                     room.y = room.parent.y;
