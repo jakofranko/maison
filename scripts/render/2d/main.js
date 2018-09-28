@@ -289,9 +289,9 @@ class Render2D {
     _renderRoom(room, direction) {
         var w = room.width;
         var h = room.height;
-        var horizontalWall = TileRepository.create('indoor wall-horizontal');
-        var verticalWall = TileRepository.create('indoor wall-vertical');
-        var floor = TileRepository.create('floor');
+        var horizontalWall = TileRepository.create('indoor wall-horizontal', { foreground: room.color });
+        var verticalWall = TileRepository.create('indoor wall-vertical', { foreground: room.color });
+        var floor = TileRepository.create('floor', { foreground: room.color });
         var tiles = new Array(w); // Initialize the x-length
 
         for (var x = 0; x < w; x++) {

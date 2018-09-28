@@ -22,17 +22,7 @@ class Maison {
         Object.assign(this, defaults, options);
 
         // Non-configurables
-        this.rooms = [
-            'foyer',        // 0
-            'dining room',    // 1
-            'living room',    // 2
-            'kitchen',        // 3
-            'office',        // 4
-            'hall',            // 5
-            'bathroom',        // 6
-            'bedroom',        // 7
-            'closet',        // 8
-        ];
+        this.rooms = Maison.getRooms();
 
         this.roomSizes = {
             'foyer': [3, 4], // roomName: [min, max]
@@ -191,6 +181,20 @@ class Maison {
 
     }
 
+    static getRooms() {
+        return [
+            'foyer',          // 0
+            'dining room',    // 1
+            'living room',    // 2
+            'kitchen',        // 3
+            'office',         // 4
+            'hall',           // 5
+            'bathroom',       // 6
+            'bedroom',        // 7
+            'closet',         // 8
+        ];
+    }
+
     static getRoomSize(name) {
         const roomSizes = {
             'foyer': [3, 4], // roomName: [min, max]
@@ -205,5 +209,10 @@ class Maison {
         };
 
         return roomSizes[name];
+    }
+
+    static getRoomColor(name) {
+        const roomColors = d3.scaleOrdinal(d3.schemeDark2).domain(Maison.getRooms());
+        return roomColors(name);
     }
 }

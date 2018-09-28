@@ -3,6 +3,7 @@ class Chambre {
         const roomSize = Maison.getRoomSize(name);
 
         this.name = name;
+        this.color = Maison.getRoomColor(name);
         this.x = 0;
         this.y = 0;
         this._z = 0;
