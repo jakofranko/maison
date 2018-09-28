@@ -591,9 +591,14 @@ class Render2D {
 
     _handleKeydown(e) {
         switch(e.key) {
+            case '.':
+            case '-':
             case '>':
                 this.renderZ = this.renderZ <= 0 ? 0 : this.renderZ - 1;
                 break;
+            case ',':
+            case '+':
+            case '=':
             case '<':
                 this.renderZ = this.renderZ >= this.tiles.length - 1 ? this.tiles.length - 1 : this.renderZ + 1;
                 break;
